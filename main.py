@@ -1,12 +1,8 @@
+import os
 import discord
 from discord import app_commands
 from discord.ext import commands
-import os
-from dotenv import load_dotenv
 import lookups
-
-load_dotenv()
-TOKEN = os.getenv('DISCORD_TOKEN')
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -70,7 +66,4 @@ async def on_app_command_error(interaction: discord.Interaction, error: app_comm
 
 
 # Run the bot with the token loaded from .env
-if TOKEN is None:
-    print('Error: DISCORD_TOKEN is not set in the .env file.')
-else:
-    bot.run(TOKEN)
+bot.run(os.environ["DISCORD_TOKEN"])
