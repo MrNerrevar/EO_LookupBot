@@ -60,11 +60,11 @@ async def compare(interaction: discord.Interaction, player1: str, player2: str):
     compare_embed.add_field(name=f'{compare_return[2]}', value=f'{compare_return[3]}', inline=True)
 
     if compare_return[1] > compare_return[3]:
-        compare_embed.add_field(name='Difference', value=f'{compare_return[0]} has {compare_return[1] - compare_return[3]} more experience than {compare_return[2]}')
+        compare_embed.add_field(name='Difference', value=f'{compare_return[0]} has {compare_return[1] - compare_return[3]} more experience than {compare_return[2]}', inline=False)
     elif compare_return[3] > compare_return[1]:
-        compare_embed.add_field(name='Difference', value=f'{compare_return[2]} has {compare_return[3] - compare_return[1]} more experience than {compare_return[0]}')
+        compare_embed.add_field(name='Difference', value=f'{compare_return[2]} has {compare_return[3] - compare_return[1]} more experience than {compare_return[0]}', inline=False)
     else:
-        compare_embed.add_field(name='No Difference', value='Miraculously, both players have the exact same amount of experience?!')
+        compare_embed.add_field(name='No Difference', value='Miraculously, both players have the exact same amount of experience?!', inline=False)
     
     compare_embed.set_footer(text="Provided by Nerrevar")
 
