@@ -49,7 +49,26 @@ async def lookup(interaction: discord.Interaction, player: str):
 @app_commands.describe(player1='First player to check', player2='Second player to check')
 async def compare(interaction: discord.Interaction, player1: str, player2: str):
     compare_return = lookups.compare_players(player1, player2)
-    await interaction.response.send_message(compare_return)
+
+    embed = discord.Embed(title='Exp Difference',
+                        description=f'Exp difference between {compare_return[0]} and {compare_return[2]}',
+                        color=0x63037a)
+    file = discord.File("EO_Bot_Icon.png", filename="EO_Bot_Icon.png")
+    embed.set_thumbnail(url="attachment://EO_Bot_Icon.png")
+
+    embed.add_field(name=f'{compare_return[0]}', value=f'{compare_return[1]}', inline=True)
+    embed.add_field(name=f'{compare_return[2]}', value=f'{compare_return[3]}', inline=True)
+
+    if compare_return.exp1 > compare_return.exp2:
+        embed.add_field(name='Difference', value=f'{compare_return[0]} has {compare_return[1] - compare_return[3]} more experience than {compare_return[2]}')
+    elif exp2 > exp1:
+        embed.add_field(name='Difference', value=f'{compare_return[2]} has {compare_return[3] - compare_return[1]} more experience than {compare_return[0]}')
+    else:
+        embed.add_field(name='No Difference', value='Miraculously, both players have the exact same amount of experience?!')
+    
+    embed.set_footer(text="Provided by Nerrevar")
+
+    await interaction.response.send_message(file=file, embed=embed)
 
 
 # Error handling for app commands

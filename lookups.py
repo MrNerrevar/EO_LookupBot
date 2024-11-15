@@ -33,12 +33,7 @@ def compare_players(player_name1, player_name2):
             exp1 = player1.get('exp', 0)
             exp2 = player2.get('exp', 0)
 
-            if exp1 > exp2:
-                return f'{player1["name"]}: {exp1}\n{player2["name"]}: {exp2}\nDifference in experience: {exp1 - exp2}'
-            elif exp2 > exp1:
-                return f'{player2["name"]}: {exp2}\n{player1["name"]}:{exp1}\nDifference in experience: {exp2 - exp1}'
-            else:
-                return f'Both players have the same experience: {exp1}'
+        return player1, exp1, player2, exp2
 
 
 def print_player_info(player_name):
