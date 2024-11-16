@@ -2,7 +2,7 @@ import os
 import discord
 from discord import app_commands
 from discord.ext import commands
-import lookups
+import player_lookups as pl
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -28,7 +28,7 @@ async def on_ready():
 @bot.tree.command(name='lookup', description='Returns the Name, XP and leaderboard rank of a player')
 @app_commands.describe(player='The player to lookup')
 async def lookup(interaction: discord.Interaction, player: str):
-    player_return = lookups.print_player_info(player)
+    player_return = pl.print_player_info(player)
 
     lookup_embed=discord.Embed(title=player_return[0], 
                     description=f'Details of the player {player_return[0]}', 
@@ -49,7 +49,7 @@ async def lookup(interaction: discord.Interaction, player: str):
 @bot.tree.command(name='compare', description='Compare two players by EXP and return the difference')
 @app_commands.describe(player1='First player to check', player2='Second player to check')
 async def compare(interaction: discord.Interaction, player1: str, player2: str):
-    compare_return = lookups.compare_players(player1, player2)
+    compare_return = pl.compare_players(player1, player2)
 
     compare_embed = discord.Embed(title='Exp Difference',
                         description=f'Exp difference between {compare_return[0]} and {compare_return[2]}',
