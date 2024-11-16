@@ -10,6 +10,8 @@ intents.message_content = True
 # Initialize the bot with the command prefix and intents
 bot = commands.Bot(command_prefix='/', intents=intents)
 
+icon = discord.File("EO_Bot_Icon.png", filename="EO_Bot_Icon.png")
+
 
 @bot.event
 async def on_ready():
@@ -31,17 +33,16 @@ async def lookup(interaction: discord.Interaction, player: str):
     lookup_embed=discord.Embed(title=player_return[0], 
                     description=f'Details of the player {player_return[0]}', 
                     color=0x63037a)
-    file = discord.File("EO_Bot_Icon.png", filename="EO_Bot_Icon.png")
     lookup_embed.set_thumbnail(url="attachment://EO_Bot_Icon.png")
 
     lookup_embed.add_field(name='Level', value=f'{player_return[1]}', inline=True)
-    lookup_embed.add_field(name='Experience', value=f'{player_return[2]}', inline=True)
+    lookup_embed.add_field(name='Experience', value=f'{player_return[2]:,}', inline=True)
 
     lookup_embed.add_field(name='Rank', value=f'{player_return[3]}', inline=True)
 
     lookup_embed.set_footer(text="Provided by Nerrevar")
 
-    await interaction.response.send_message(file=file, embed=lookup_embed)
+    await interaction.response.send_message(file=icon, embed=lookup_embed)
 
 
 # Compare two players by xp and show the difference
@@ -53,22 +54,23 @@ async def compare(interaction: discord.Interaction, player1: str, player2: str):
     compare_embed = discord.Embed(title='Exp Difference',
                         description=f'Exp difference between {compare_return[0]} and {compare_return[2]}',
                         color=0x63037a)
-    file = discord.File("EO_Bot_Icon.png", filename="EO_Bot_Icon.png")
     compare_embed.set_thumbnail(url="attachment://EO_Bot_Icon.png")
 
-    compare_embed.add_field(name=f'{compare_return[0]}', value=f'{compare_return[1]}', inline=True)
-    compare_embed.add_field(name=f'{compare_return[2]}', value=f'{compare_return[3]}', inline=True)
+    compare_embed.add_field(name=f'{compare_return[0]}', value=f'{compare_return[1]:,}', inline=True)
+    compare_embed.add_field(name=f'{compare_return[2]}', value=f'{compare_return[3]:,}', inline=True)
 
     if compare_return[1] > compare_return[3]:
-        compare_embed.add_field(name='Difference', value=f'{compare_return[0]} has {compare_return[1] - compare_return[3]} more experience than {compare_return[2]}', inline=False)
+        diff = compare_return[1] - compare_return[3]
+        compare_embed.add_field(name='Difference', value=f'{compare_return[0]} has {diff:,} more experience than {compare_return[2]}', inline=False)
     elif compare_return[3] > compare_return[1]:
-        compare_embed.add_field(name='Difference', value=f'{compare_return[2]} has {compare_return[3] - compare_return[1]} more experience than {compare_return[0]}', inline=False)
+        diff = compare_return[3] - compare_return[1]
+        compare_embed.add_field(name='Difference', value=f'{compare_return[2]} has {diff:,} more experience than {compare_return[0]}', inline=False)
     else:
         compare_embed.add_field(name='No Difference', value='Miraculously, both players have the exact same amount of experience?!', inline=False)
     
     compare_embed.set_footer(text="Provided by Nerrevar")
 
-    await interaction.response.send_message(file=file, embed=compare_embed)
+    await interaction.response.send_message(file=icon, embed=compare_embed)
 
 
 # Error handling for app commands
