@@ -32,10 +32,10 @@ def compare_players(player_name1, player_name2):
         if player1 and player2:
             player1_name = player1["name"]
             player2_name = player2["name"]
-            player1_exp = player1.get('exp', 0)
-            Player2_exp = player2.get('exp', 0)
             player1_lvl = player1['level']
             player2_lvl = player2['level']
+            player1_exp = player1.get('exp', 0)
+            player2_exp = player2.get('exp', 0)
 
         return player1_name, player1_lvl, player1_exp, player2_name, player2_lvl, player2_exp
 
