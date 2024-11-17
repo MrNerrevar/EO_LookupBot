@@ -52,19 +52,19 @@ async def compare(interaction: discord.Interaction, player1: str, player2: str):
     compare_return = pl.compare_players(player1, player2)
 
     compare_embed = discord.Embed(title='Exp Difference',
-                        description=f'Exp difference between {compare_return[0]} and {compare_return[2]}',
+                        description=f'Exp difference between {compare_return[0]} and {compare_return[3]}',
                         color=0x63037a)
     compare_embed.set_thumbnail(url="attachment://EO_Bot_Icon.png")
 
-    compare_embed.add_field(name=f'{compare_return[0]}', value=f'{compare_return[1]:,}', inline=True)
-    compare_embed.add_field(name=f'{compare_return[2]}', value=f'{compare_return[3]:,}', inline=True)
+    compare_embed.add_field(name=f'{compare_return[0]}', value=f'Lvl: {compare_return[1]} - Exp: {compare_return[2]:,}', inline=True)
+    compare_embed.add_field(name=f'{compare_return[3]}', value=f'Lvl: {compare_return[4]} - Exp: {compare_return[5]:,}', inline=True)
 
-    if compare_return[1] > compare_return[3]:
-        diff = compare_return[1] - compare_return[3]
-        compare_embed.add_field(name='Difference', value=f'{compare_return[0]} has {diff:,} more experience than {compare_return[2]}', inline=False)
-    elif compare_return[3] > compare_return[1]:
-        diff = compare_return[3] - compare_return[1]
-        compare_embed.add_field(name='Difference', value=f'{compare_return[2]} has {diff:,} more experience than {compare_return[0]}', inline=False)
+    if compare_return[2] > compare_return[5]:
+        diff = compare_return[2] - compare_return[5]
+        compare_embed.add_field(name='Difference', value=f'{compare_return[0]} has {diff:,} more experience than {compare_return[3]}', inline=False)
+    elif compare_return[5] > compare_return[2]:
+        diff = compare_return[5] - compare_return[2]
+        compare_embed.add_field(name='Difference', value=f'{compare_return[3]} has {diff:,} more experience than {compare_return[0]}', inline=False)
     else:
         compare_embed.add_field(name='No Difference', value='Miraculously, both players have the exact same amount of experience?!', inline=False)
     
