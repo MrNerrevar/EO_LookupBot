@@ -4,7 +4,7 @@ import requests
 
 class Player_Cog(commands.Cog):
 
-    icon = discord.File('EO_Bot_Icon.png', filename=filename)
+    icon = discord.File('EO_Bot_Icon.png', filename='EO_Bot_Icon.png')
 
     
     def __init__(self, bot):
