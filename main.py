@@ -9,8 +9,6 @@ intents.message_content = True
 # Initialize the bot with the command prefix and intents
 bot = commands.Bot(command_prefix='/', intents=intents)
 
-icon = discord.File("EO_Bot_Icon.png", filename=filename)
-
 cogs_list = [
     'player_cog'
 ]
