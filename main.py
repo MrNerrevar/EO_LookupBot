@@ -10,8 +10,14 @@ intents.message_content = True
 # Initialize the bot with the command prefix and intents
 bot = commands.Bot(command_prefix='/', intents=intents)
 
-icon = discord.File("EO_Bot_Icon.png", filename="EO_Bot_Icon.png")
+icon = discord.File("EO_Bot_Icon.png", filename=filename)
 
+cogs_list = [
+    'player_cog'
+]
+
+for cog in cogs_list:
+    bot.load_extension(f'cogs.{cog}')
 
 @bot.event
 async def on_ready():
@@ -22,55 +28,6 @@ async def on_ready():
         print(f'Synced {len(synced)} commands.')
     except Exception as e:
         print(f'Error syncing commands: {e}')
-
-
-# Lookup a player and return their Name, rank and xp
-@bot.tree.command(name='lookup', description='Returns the Name, XP and leaderboard rank of a player')
-@app_commands.describe(player='The player to lookup')
-async def lookup(interaction: discord.Interaction, player: str):
-    player_return = pl.print_player_info(player)
-
-    lookup_embed=discord.Embed(title=player_return[0], 
-                    description=f'Details of the player {player_return[0]}', 
-                    color=0x63037a)
-    lookup_embed.set_thumbnail(url="attachment://EO_Bot_Icon.png")
-
-    lookup_embed.add_field(name='Level', value=f'{player_return[1]}', inline=True)
-    lookup_embed.add_field(name='Experience', value=f'{player_return[2]:,}', inline=True)
-
-    lookup_embed.add_field(name='Rank', value=f'{player_return[3]}', inline=True)
-
-    lookup_embed.set_footer(text="Provided by Nerrevar")
-
-    await interaction.response.send_message(file=icon, embed=lookup_embed)
-
-
-# Compare two players by xp and show the difference
-@bot.tree.command(name='compare', description='Compare two players by EXP and return the difference')
-@app_commands.describe(player1='First player to check', player2='Second player to check')
-async def compare(interaction: discord.Interaction, player1: str, player2: str):
-    compare_return = pl.compare_players(player1, player2)
-
-    compare_embed = discord.Embed(title='Exp Difference',
-                        description=f'Exp difference between {compare_return[0]} and {compare_return[3]}',
-                        color=0x63037a)
-    compare_embed.set_thumbnail(url="attachment://EO_Bot_Icon.png")
-
-    compare_embed.add_field(name=f'{compare_return[0]}', value=f'Lvl: {compare_return[1]} - Exp: {compare_return[2]:,}', inline=True)
-    compare_embed.add_field(name=f'{compare_return[3]}', value=f'Lvl: {compare_return[4]} - Exp: {compare_return[5]:,}', inline=True)
-
-    if compare_return[2] > compare_return[5]:
-        diff = compare_return[2] - compare_return[5]
-        compare_embed.add_field(name='Difference', value=f'{compare_return[0]} has {diff:,} more experience than {compare_return[3]}', inline=False)
-    elif compare_return[5] > compare_return[2]:
-        diff = compare_return[5] - compare_return[2]
-        compare_embed.add_field(name='Difference', value=f'{compare_return[3]} has {diff:,} more experience than {compare_return[0]}', inline=False)
-    else:
-        compare_embed.add_field(name='No Difference', value='Miraculously, both players have the exact same amount of experience?!', inline=False)
-    
-    compare_embed.set_footer(text="Provided by Nerrevar")
-
-    await interaction.response.send_message(file=icon, embed=compare_embed)
 
 
 # Error handling for app commands
@@ -87,4 +44,4 @@ async def on_app_command_error(interaction: discord.Interaction, error: app_comm
 
 
 # Run the bot with the token loaded from .env
-bot.run(os.environ["DISCORD_TOKEN"])
+bot.run(os.environ["DISCORD_TOKEN"], bot=True)
