@@ -41,4 +41,4 @@ async def on_app_command_error(interaction: discord.Interaction, error: app_comm
 
 
 # Run the bot with the token loaded from .env
-bot.run(os.environ["DISCORD_TOKEN"], bot=True)
+bot.run(os.environ["DISCORD_TOKEN"])
