@@ -100,5 +100,5 @@ class Player_Cog(commands.Cog):
 
         await ctx.respond(file=icon, embed=compare_embed)
 
-    def setup(bot): # this is called by Pycord to setup the cog
-        bot.add_cog(Player_Cog(bot))
+def setup(bot): # this is called by Pycord to setup the cog
+    bot.add_cog(Player_Cog(bot))
