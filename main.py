@@ -1,7 +1,11 @@
 import os
 import discord
-from discord import app_commands
+import asyncio
 from discord.ext import commands
+from dotenv import load_dotenv
+
+load_dotenv()
+TOKEN = os.getenv('DISCORD_TOKEN')
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -13,32 +17,37 @@ cogs_list = [
     'player_cog'
 ]
 
-for cog in cogs_list:
-    bot.load_extension(f'cogs.{cog}')
+
+def load_extensions():
+    for cog in cogs_list:
+        bot.load_extension(f'cogs.{cog}')
+
 
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user} (ID: {bot.user.id})')
     print('------')
-    try:
-        synced = await bot.tree.sync()  # Sync app commands (slash commands) with Discord
-        print(f'Synced {len(synced)} commands.')
-    except Exception as e:
-        print(f'Error syncing commands: {e}')
 
 
 # Error handling for app commands
-@bot.tree.error
-async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
-    if isinstance(error, app_commands.CommandOnCooldown):
-        await interaction.response.send_message(f'You\'re on cooldown! Try again in {error.retry_after:.2f} seconds.',
-                                                ephemeral=True)
-    elif isinstance(error, app_commands.MissingPermissions):
-        await interaction.response.send_message('You don\'t have permission to use this command.', ephemeral=True)
+async def cog_command_error(self, ctx: commands.Context, error: commands.CommandError):
+    if isinstance(error, commands.CommandOnCooldown):
+        await ctx.send_message(f'You\'re on cooldown! Try again in {error.retry_after:.2f} seconds.',
+                               ephemeral=True)
+    elif isinstance(error, commands.MissingPermissions):
+        await ctx.send_message('You don\'t have permission to use this command.', ephemeral=True)
     else:
-        await interaction.response.send_message('An error occurred. Please try again later.', ephemeral=True)
+        await ctx.send_message('An error occurred. Please try again later.', ephemeral=True)
         print(f'An error occurred: {error}')
 
 
-# Run the bot with the token loaded from .env
-bot.run(os.environ["DISCORD_TOKEN"])
+async def main():
+    async with bot:
+        if TOKEN is None:
+            print('Error: DISCORD_TOKEN is not set in the .env file.')
+        else:
+            #await bot.start(os.environ["DISCORD_TOKEN"])
+            await bot.start(TOKEN)
+
+load_extensions()
+asyncio.run(main())
