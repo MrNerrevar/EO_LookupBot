@@ -2,10 +2,10 @@ import os
 import discord
 import asyncio
 from discord.ext import commands
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
 
-load_dotenv()
-TOKEN = os.getenv('DISCORD_TOKEN')
+#load_dotenv()
+#TOKEN = os.getenv('DISCORD_TOKEN')
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -46,8 +46,8 @@ async def main():
         if TOKEN is None:
             print('Error: DISCORD_TOKEN is not set in the .env file.')
         else:
-            #await bot.start(os.environ["DISCORD_TOKEN"])
-            await bot.start(TOKEN)
+            await bot.start(os.environ["DISCORD_TOKEN"])
+            #await bot.start(TOKEN)
 
 load_extensions()
 asyncio.run(main())
