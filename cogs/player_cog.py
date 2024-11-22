@@ -107,7 +107,7 @@ class Player_Cog(commands.Cog):
 
         compare_embed.set_footer(text='Provided by Nerrevar - Data pulled from EoDash')
 
-        await ctx.respond(file=sthumbnail, embed=compare_embed)
+        await ctx.respond(file=thumbnail, embed=compare_embed)
 
 
 def setup(bot):  # this is called by Pycord to setup the cog
