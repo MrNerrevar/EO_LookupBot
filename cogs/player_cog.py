@@ -7,7 +7,8 @@ import os
 class Player_Cog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.icon = discord.File('images/EO_Bot_Icon.png', filename='EO_Bot_Icon.png')
+        self.icon_path = 'images/EO_Bot_Icon.png'
+        self.icon = 'EO_Bot_Icon.png'
 
 
     #icon_path = os.path.relpath('./images/EO_Bot_Icon.png', os.path.dirname(__file__))
@@ -37,6 +38,7 @@ class Player_Cog(commands.Cog):
     # Lookup a player and return their Name, rank and xp
     @discord.slash_command(name='lookup', description='Returns the Name, XP and leaderboard rank of a player')
     async def lookup(self, ctx, player: str):
+        thumbnail = discord.File(self.icon_path, filename=self.icon)
         players = self.fetch_all_players()
 
         if players:
@@ -60,11 +62,12 @@ class Player_Cog(commands.Cog):
 
             lookup_embed.set_footer(text='Provided by Nerrevar - Data pulled from EoDash')
 
-        await ctx.respond(file=self.icon, embed=lookup_embed)
+        await ctx.respond(file=thumbnail, embed=lookup_embed)
 
     # Compare two players by xp and show the difference
     @discord.slash_command(name='compare', description='Compare two players by EXP and return the difference')
     async def compare(self, ctx, player1: str, player2: str):
+        thumbnail = discord.File(self.icon_path, filename=self.icon)
         players = self.fetch_all_players()
 
         if players:
@@ -104,7 +107,7 @@ class Player_Cog(commands.Cog):
 
         compare_embed.set_footer(text='Provided by Nerrevar - Data pulled from EoDash')
 
-        await ctx.respond(file=self.icon, embed=compare_embed)
+        await ctx.respond(file=sthumbnail, embed=compare_embed)
 
 
 def setup(bot):  # this is called by Pycord to setup the cog
