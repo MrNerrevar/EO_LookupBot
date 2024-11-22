@@ -6,6 +6,7 @@ from discord.ext import commands
 
 #load_dotenv()
 #TOKEN = os.getenv('DISCORD_TOKEN')
+TOKEN = os.environ["DISCORD_TOKEN"]
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -44,10 +45,9 @@ async def cog_command_error(self, ctx: commands.Context, error: commands.Command
 async def main():
     async with bot:
         if TOKEN is None:
-            print('Error: DISCORD_TOKEN is not set in the .env file.')
+            print('Error: DISCORD_TOKEN not found')
         else:
-            await bot.start(os.environ["DISCORD_TOKEN"])
-            #await bot.start(TOKEN)
+            await bot.start(TOKEN)
 
 load_extensions()
 asyncio.run(main())
