@@ -71,38 +71,38 @@ class Player_Cog(commands.Cog):
             player1 = self.find_player_by_name(players, player1)
             player2 = self.find_player_by_name(players, player2)
 
-            if player1 and player2:
-                compare_embed = discord.Embed(title='Exp Difference',
-                                              description=f'Exp difference between {player1['name']} and {player2['name']}',
-                                              color=0x63037a)
-                compare_embed.set_thumbnail(url=f'attachment://EO_Bot_Icon.png')
+        if player1 and player2:
+            compare_embed = discord.Embed(title='Exp Difference',
+                                            description=f'Exp difference between {player1['name']} and {player2['name']}',
+                                            color=0x63037a)
+            compare_embed.set_thumbnail(url=f'attachment://EO_Bot_Icon.png')
 
-                compare_embed.add_field(name=f'{player1['name']}',
-                                        value=f'Lvl: {player1['level']} - Exp: {player1['exp']:,}', inline=True)
-                compare_embed.add_field(name=f'{player2['name']}',
-                                        value=f'Lvl: {player2['level']} - Exp: {player2['exp']:,}', inline=True)
+            compare_embed.add_field(name=f'{player1['name']}',
+                                    value=f'Lvl: {player1['level']} - Exp: {player1['exp']:,}', inline=True)
+            compare_embed.add_field(name=f'{player2['name']}',
+                                    value=f'Lvl: {player2['level']} - Exp: {player2['exp']:,}', inline=True)
 
-                if player1['exp'] > player2['exp']:
-                    diff = player1['exp'] - player2['exp']
-                    compare_embed.add_field(name='Difference',
-                                            value=f'{player1['name']} has {diff:,} more experience than {player2['name']}',
-                                            inline=False)
-                elif player2['exp'] > player1['exp']:
-                    diff = player2['exp'] - player1['exp']
-                    compare_embed.add_field(name='Difference',
-                                            value=f'{player2['name']} has {diff:,} more experience than {player1['name']}',
-                                            inline=False)
-                else:
-                    compare_embed.add_field(name='No Difference',
-                                            value='Miraculously, both players have the exact same amount of experience?!',
-                                            inline=False)
+            if player1['exp'] > player2['exp']:
+                diff = player1['exp'] - player2['exp']
+                compare_embed.add_field(name='Difference',
+                                        value=f'{player1['name']} has {diff:,} more experience than {player2['name']}',
+                                        inline=False)
+            elif player2['exp'] > player1['exp']:
+                diff = player2['exp'] - player1['exp']
+                compare_embed.add_field(name='Difference',
+                                        value=f'{player2['name']} has {diff:,} more experience than {player1['name']}',
+                                        inline=False)
             else:
-                compare_embed = discord.Embed(title='Exp Difference',
-                                              description=f'One or both of the players could not be found',
-                                              color=0x7a0303)
-                compare_embed.set_thumbnail(url=f'attachment://EO_Bot_Icon.png')
+                compare_embed.add_field(name='No Difference',
+                                        value='Miraculously, both players have the exact same amount of experience?!',
+                                        inline=False)
+        else:
+            compare_embed = discord.Embed(title='Exp Difference',
+                                            description=f'One or both of the players could not be found',
+                                            color=0x7a0303)
+            compare_embed.set_thumbnail(url=f'attachment://EO_Bot_Icon.png')
 
-            compare_embed.set_footer(text='Provided by Nerrevar - Data pulled from EoDash')
+        compare_embed.set_footer(text='Provided by Nerrevar - Data pulled from EoDash')
 
         await ctx.respond(file=self.icon, embed=compare_embed)
 
