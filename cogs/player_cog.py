@@ -27,9 +27,8 @@ class Player_Cog(commands.Cog):
 
     def find_player_by_name(self, players, player_name):
         for player in players:
-            print(player['name'])
-            print(player_name)
             if player['name'].lower() == player_name.lower():
+                print(f'Player {player["name"]} found')
                 return player
 
         print(f'Failed to find the specified player: {player_name}')
@@ -45,7 +44,7 @@ class Player_Cog(commands.Cog):
 
             if player:
                 lookup_embed = discord.Embed(title=player['name'],
-                                             description=f'Details of the player {player['name']}',
+                                             description=f'Details of the player {player["name"]}',
                                              color=0x63037a)
                 lookup_embed.set_thumbnail(url=f'attachment://EO_Bot_Icon.png')
 
@@ -55,7 +54,7 @@ class Player_Cog(commands.Cog):
                 lookup_embed.add_field(name='Rank', value=f'{player['rank']}', inline=True)
             else:
                 lookup_embed = discord.Embed(title='ERROR',
-                                             description=f'Could not find the player {player['name']}',
+                                             description=f'Could not find the player {player["name"]}',
                                              color=0x7a0303)
                 lookup_embed.set_thumbnail(url=f'attachment://EO_Bot_Icon.png')
 
