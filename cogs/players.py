@@ -4,15 +4,12 @@ import requests
 import os
 
 
-class Player_Cog(commands.Cog):
+class Players(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.icon_path = 'images/EO_Bot_Icon.png'
         self.icon = 'EO_Bot_Icon.png'
 
-
-    #icon_path = os.path.relpath('./images/EO_Bot_Icon.png', os.path.dirname(__file__))
-    # icon = discord.File('images/EO_Bot_Icon.png', filename='EO_Bot_Icon.png')
 
     def fetch_all_players(self):
         url = 'https://eodash.com/api/players'
@@ -111,4 +108,4 @@ class Player_Cog(commands.Cog):
 
 
 def setup(bot):  # this is called by Pycord to setup the cog
-    bot.add_cog(Player_Cog(bot))
+    bot.add_cog(Players(bot))
