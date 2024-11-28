@@ -43,8 +43,8 @@ class Players(commands.Cog):
 
             if player:
                 lookup_embed = discord.Embed(title=player['name'],
-                                             description=f'Details of the player {player["name"]}',
-                                             color=0x63037a)
+                                            description=f'Details of the player {player["name"]}',
+                                            color=0x63037a)
                 lookup_embed.set_thumbnail(url=f'attachment://EO_Bot_Icon.png')
 
                 lookup_embed.add_field(name='Level', value=f'{player['level']}', inline=True)

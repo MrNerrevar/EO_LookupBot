@@ -4,6 +4,7 @@ import asyncio
 from discord.ext import commands
 import requests
 import os
+from utils import ItemType, ItemSubType
 
 
 class Items(commands.Cog):
@@ -43,67 +44,129 @@ class Items(commands.Cog):
                     print(f'Failed to fetch data. Status code: {response.status_code}')
                     return None
 
-    
-    # ignore = ['id', 
-    #         'name', 
-    #         'graphic', 
-    #         'item_type', 
-    #         'item_sub_type', 
-    #         'item_unique',
-    #         'light',
-    #         'dark',
-    #         'earth',
-    #         'air',
-    #         'water'
-    #         'fire',
-    #         'spec1',
-    #         'spec2',
-    #         'spec3',
-    #         'aoe_flag',
-    #         'size',
-    #         'drops',
-    #         'craftables',
-    #         'ingredientFor',
-    #         'soldBy',
-    #         'questRewards',
-    #         'gatherableMaps',
-    #         'gatherableSpots',
-    #         'chestSpawnChests',
-    #         'graphic_url'
-    #         ]
-
-
-    # def Process(json):
-    #     for key, value in json.items():
-    #         if key in ignore: continue
-    #         try:
-    #             if isinstance(value, dict):
-    #                 Process(value)
-    #             if isinstance(value, list):
-    #                 for v in value:
-    #                     Process(v)
-    #             if int(value) > 0:
-    #                 print(key, value)
-    #         except:
-    #             continue
-
 
     @discord.slash_command(name='item_lookup', description='Returns information about an item')
     async def item_lookup(self, ctx, item: str):
+        await ctx.response.defer()
         items = self.fetch_all_items()
+
+        ignore = [
+            'id', 
+            'name', 
+            'graphic',
+            'item_unique'
+            'light',
+            'dark',
+            'earth',
+            'air',
+            'water'
+            'fire',
+            'spec1',
+            'spec2',
+            'spec3',
+            'aoe_flag',
+            'size',
+            'drops',
+            'craftables',
+            'ingredientFor',
+            'soldBy',
+            'questRewards',
+            'gatherableMaps',
+            'gatherableSpots',
+            'chestSpawnChests',
+            'graphic_url'
+            ]
+
+        types = [
+            'item_type', 
+            'item_sub_type'
+            ]
+
+        stats = [
+            'hp',
+            'tp',
+            'sp',
+            'min_damage',
+            'max_damage',
+            'hit_rate',
+            'evasion',
+            'armor',
+            'critical_chance',
+            'power',
+            'accuracy',
+            'dexterity',
+            'defense',
+            'vitality',
+            'aura',
+            'light',
+            'dark',
+            'earth',
+            'air',
+            'water',
+            'fire',
+            'spec1',
+            'spec2',
+            'spec3'
+            ]
+
+        requirements = [
+            'required_level',
+            'required_class',
+            'required_power',
+            'required_accuracy',
+            'required_dexterity',
+            'required_defense',
+            'required_vitality',
+            'required_aura'
+            ]
 
         if items:
             item = self.fetch_item_details(items, item)
 
-            if item:
-                print('Got details')
-                print(item)
-                print(item['name'])
-                print([item['graphic_url']])
+            item_types = {}
+            item_stats = {}
+            item_requirements = {}
 
-                await ctx.response.defer()
-                # await asyncio.sleep(20)
-                await ctx.followup(f'Item: {item['name']} found')
+            if item:
+                for key, value in item.items():
+                    if key in ignore: continue
+                    try:
+                        if isinstance(value, dict):
+                            continue
+                        if isinstance(value, list):
+                            continue
+                        if (key in types) and (int(value) > 0):
+                            item_types.update({key: value})
+                        if (key in stats) and (int(value) > 0):
+                            item_stats.update({key.replace("_", " ").title(): value})
+                        if (key in requirements) and (int(value) > 0):
+                            item_requirements.update({key: value})
+                    except:
+                        continue
+
+                # if (int(item_types['Item Sub Type']) > 0):
+                #     if (int(item_types['Item Sub Type']) == 1):
+                #         item_description = f'item_type'
+
+                item_types.update({'item_type': ItemType(item_types['item_type']).name})
+                item_types.update({'item_sub_type': ItemSubType(item_types['item_sub_type']).name})
+
+                
+                item_embed = discord.Embed(title=item['name'],
+                                            description=f'{item_types}',
+                                            color=0x63037a)
+                item_embed.set_thumbnail(url=f'{item['graphic_url']}')
+
+                if item_stats:
+                    item_embed.add_field(name='Stats', 
+                                                value='\n'.join(f'{key.replace("_", " ").title()}: {value}' for key, value in item_stats.items()))
+                if item_requirements:    
+                    item_embed.add_field(name='Requirements', 
+                                                value='\n'.join(f'{key.replace("_", " ").title()}: {value}' for key, value in item_requirements.items()))
+
+                item_embed.set_footer(text='Provided by Nerrevar - Data pulled from EOR-API')
+            # await asyncio.sleep(20)
+            await ctx.followup.send(embed=item_embed)
 
 def setup(bot):  # this is called by Pycord to setup the cog
     bot.add_cog(Items(bot))
