@@ -62,6 +62,7 @@ class ItemSpecial(Enum):
     Lore = 4
     Cursed = 5
 
+
 class NpcType(Enum):
     Friendly = 0
     Passive = 1

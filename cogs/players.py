@@ -35,7 +35,7 @@ class Players(commands.Cog):
     # Lookup a player and return their Name, rank and xp
     @discord.slash_command(name='lookup', description='Returns the Name, XP and leaderboard rank of a player')
     async def lookup(self, ctx, player: str):
-        thumbnail = discord.File(self.icon_path, filename=self.icon)
+        icon = discord.File(self.icon_path, filename=self.icon)
         players = self.fetch_all_players()
 
         if players:
@@ -55,16 +55,18 @@ class Players(commands.Cog):
                 lookup_embed = discord.Embed(title='ERROR',
                                              description=f'Could not find the player {player["name"]}',
                                              color=0x7a0303)
-                lookup_embed.set_thumbnail(url=f'attachment://EO_Bot_Icon.png')
+                                             
+            lookup_embed.set_author(name='Player Lookup',
+                                            icon_url=f'attachment://EO_Bot_Icon.png')
 
             lookup_embed.set_footer(text='Provided by Nerrevar - Data pulled from EoDash')
 
-        await ctx.respond(file=thumbnail, embed=lookup_embed)
+        await ctx.respond(file=icon, embed=lookup_embed)
 
     # Compare two players by xp and show the difference
     @discord.slash_command(name='compare', description='Compare two players by EXP and return the difference')
     async def compare(self, ctx, player1: str, player2: str):
-        thumbnail = discord.File(self.icon_path, filename=self.icon)
+        icon = discord.File(self.icon_path, filename=self.icon)
         players = self.fetch_all_players()
 
         if players:
@@ -100,11 +102,13 @@ class Players(commands.Cog):
             compare_embed = discord.Embed(title='Exp Difference',
                                             description=f'One or both of the players could not be found',
                                             color=0x7a0303)
-            compare_embed.set_thumbnail(url=f'attachment://EO_Bot_Icon.png')
+
+            compare_embed.set_author(name='Player Comparison',
+                                            icon_url=f'attachment://EO_Bot_Icon.png')
 
         compare_embed.set_footer(text='Provided by Nerrevar - Data pulled from EoDash')
 
-        await ctx.respond(file=thumbnail, embed=compare_embed)
+        await ctx.respond(file=icon, embed=compare_embed)
 
 
 def setup(bot):  # this is called by Pycord to setup the cog
