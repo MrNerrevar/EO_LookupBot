@@ -52,7 +52,7 @@ class Items(commands.Cog):
     def get_item_description(self, item: Item) -> str:
         # If item_type is Weapon
         if item.item_type == ItemType.Weapon:
-            if (item.item_sub_type == ItemSubType.Ranged) or int(item.range > 0):
+            if (item.item_sub_type == ItemSubType.Ranged) or int(item.stats.range > 0):
                 return 'Ranged Weapon'
             else:
                 return 'Melee Weapon'
@@ -84,11 +84,11 @@ class Items(commands.Cog):
 
     
     def get_drop_npcs(self, item, drops):
+        drop_npcs = []
         for drop in drops:
             print(drop['npc_url'])
             npc_url = drop['npc_url']
             response = requests.get(npc_url)
-            drop_npcs = []
 
             # Ensure response is valid
             if response.status_code == 200:
@@ -136,7 +136,15 @@ class Items(commands.Cog):
                     drops = self.get_drop_npcs(item, item.drops)
 
                     #Needs to be fixed to show all NPCs, currently only last in the list
-                    item_embed.add_field(name='Drops From', value='\n'.join(f'{npc}' for npc in drops))
+                    print(f'Drops: {drops}')
+                    item_embed.add_field(name='Drops From', 
+                                        value='\n'.join(f'{npc}' for npc in drops),
+                                        inline=False)
+
+                if item.craftables:
+                    item_embed.add_field(name='Craftable',
+                                        value='Yes',
+                                        inline=False)
 
                 if item.sell_price > 0:
                     item_embed.add_field(name='Sell Price', 
