@@ -83,21 +83,23 @@ class Items(commands.Cog):
         return attributes
 
     
-    # def get_drop_npcs(self, item, items, drops):
-    #     for drop in drops:
-    #         print(drop['npc_url'])
-    #         npc_url = drop['npc_url']
-    #         response = requests.get(npc_url)
+    def get_drop_npcs(self, item, drops):
+        for drop in drops:
+            print(drop['npc_url'])
+            npc_url = drop['npc_url']
+            response = requests.get(npc_url)
+            drop_npcs = []
 
-    #         # Ensure response is valid
-    #         if response.status_code == 200:
-    #             data = response.json()
-    #             return data.get('data', [])
-    #         else:
-    #             print(f'Failed to fetch data. Status code: {response.status_code}')
-    #             return None
+            # Ensure response is valid
+            if response.status_code == 200:
+                npc = response.json()
+                print(npc['name'])
+                drop_npcs.append(npc['name'])
+            else:
+                print(f'Failed to fetch data. Status code: {response.status_code}')
+                return None
             
-    #         print(drop_item)
+        return drop_npcs
 
 
     @discord.slash_command(name='item_lookup', description='Returns information about an item')
@@ -107,7 +109,6 @@ class Items(commands.Cog):
         icon = discord.File(self.icon_path, filename=self.icon)
 
         items = self.fetch_all_items()
-
 
         if items:
             item = map_item(self.fetch_item_details(items, item))
@@ -131,10 +132,11 @@ class Items(commands.Cog):
                                         value='\n'.join(f'{key}: {value}' for key, value in self.get_item_attributes(item.requirements).items()),
                                         inline=True)
                 
-                # if item.drops:
-                #     drops = self.get_drop_npcs(item, items, item.drops)
+                if item.drops:
+                    drops = self.get_drop_npcs(item, item.drops)
 
-                #     print(drops)
+                    #Needs to be fixed to show all NPCs, currently only last in the list
+                    item_embed.add_field(name='Drops From', value='\n'.join(f'{npc}' for npc in drops))
 
                 if item.sell_price > 0:
                     item_embed.add_field(name='Sell Price', 
