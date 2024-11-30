@@ -53,19 +53,51 @@ class Items(commands.Cog):
         # If item_type is Weapon
         if item.item_type == ItemType.Weapon:
             if (item.item_sub_type == ItemSubType.Ranged) or int(item.range > 0):
-                return "Ranged Weapon"
+                return 'Ranged Weapon'
             else:
-                return "Melee Weapon"
+                return 'Melee Weapon'
         
         # If item_type is Shield (Back slot)
         if item.item_type == ItemType.Shield:
             if item.item_sub_type in {ItemSubType.Arrows, ItemSubType.Wings, ItemSubType.Quiver}:
                 return item.item_sub_type.name  # Directly output the sub_type name
             else:
-                return "Shield"
+                return 'Shield'
 
         # Default output if no conditions are met
-        return "Unknown Item"
+        return f'{item.item_type.name} Item'
+
+
+    def get_item_attributes(self, item):
+        attributes = {}
+        # Iterate through all attributes of the item object
+        for field in fields(item):
+            attribute_name = field.name
+            attribute_value = getattr(item, attribute_name)
+            if attribute_value > 0:
+                # Format the label (replace underscores with spaces and capitalize each word)
+                formatted_label = attribute_name.replace("_", " ").title()
+
+                attributes.update({formatted_label: attribute_value})
+        
+        return attributes
+
+    
+    # def get_drop_npcs(self, item, items, drops):
+    #     for drop in drops:
+    #         print(drop['npc_url'])
+    #         npc_url = drop['npc_url']
+    #         response = requests.get(npc_url)
+
+    #         # Ensure response is valid
+    #         if response.status_code == 200:
+    #             data = response.json()
+    #             return data.get('data', [])
+    #         else:
+    #             print(f'Failed to fetch data. Status code: {response.status_code}')
+    #             return None
+            
+    #         print(drop_item)
 
 
     @discord.slash_command(name='item_lookup', description='Returns information about an item')
@@ -76,71 +108,11 @@ class Items(commands.Cog):
 
         items = self.fetch_all_items()
 
-        ignore = [
-            'id', 
-            'name', 
-            'graphic',
-            'item_type', 
-            'item_sub_type'
-            'item_unique'
-            'light',
-            'dark',
-            'earth',
-            'air',
-            'water'
-            'fire',
-            'spec1',
-            'spec2',
-            'spec3',
-            'aoe_flag',
-            'size',
-            'drops',
-            'craftables',
-            'ingredientFor',
-            'soldBy',
-            'questRewards',
-            'gatherableMaps',
-            'gatherableSpots',
-            'chestSpawnChests',
-            'graphic_url'
-            ]
-
-        stats = [
-            'hp',
-            'tp',
-            'sp',
-            'min_damage',
-            'max_damage',
-            'hit_rate',
-            'evasion',
-            'armor',
-            'critical_chance',
-            'power',
-            'accuracy',
-            'dexterity',
-            'defense',
-            'vitality',
-            'aura'
-            ]
-
-        requirements = [
-            'required_level',
-            'required_class',
-            'required_power',
-            'required_accuracy',
-            'required_dexterity',
-            'required_defense',
-            'required_vitality',
-            'required_aura'
-            ]
-        
-        misc = [
-            'sell_price'
-        ]
 
         if items:
             item = map_item(self.fetch_item_details(items, item))
 
+            print(item)
             if item:
                 item_embed = discord.Embed(title=item.name,
                                             description=self.get_item_description(item),
@@ -149,32 +121,25 @@ class Items(commands.Cog):
                                             icon_url=f'attachment://EO_Bot_Icon.png')
                 item_embed.set_thumbnail(url=item.graphic_url)
 
-                # Iterate through all attributes of the item object
-                for field in fields(item):
-                    attribute_name = field.name
-                    attribute_value = getattr(item, attribute_name)
-                    # Format the label (replace underscores with spaces and capitalize each word)
-                    formatted_label = attribute_name.replace("_", " ").title()
+                if self.get_item_attributes(item.stats):
+                    item_embed.add_field(name='Stats', 
+                                        value='\n'.join(f'{key}: {value}' for key, value in self.get_item_attributes(item.stats).items()),
+                                        inline=True)
 
-                    print(f"{formatted_label}: {attribute_value}")
+                if self.get_item_attributes(item.requirements):
+                    item_embed.add_field(name='Requirements', 
+                                        value='\n'.join(f'{key}: {value}' for key, value in self.get_item_attributes(item.requirements).items()),
+                                        inline=True)
+                
+                # if item.drops:
+                #     drops = self.get_drop_npcs(item, items, item.drops)
 
-                    if attribute_name in ignore:
-                        continue
-                    if attribute_name in stats:
-                        if (attribute_value is int) and (attribute_value > 0):
-                            print(f"{formatted_label}: {attribute_value}")
-                    if attribute_name in requirements:
-                        if (attribute_value is int) and (attribute_value > 0):
-                            print(f"{formatted_label}: {attribute_value}")
-                    if attribute_name in misc:
-                        if (attribute_value is int) and (attribute_value > 0):
-                            print(f"{formatted_label}: {attribute_value}")
+                #     print(drops)
 
-                # Accessing properties
-                # print(f'Name: {item.name}')  # Poison Quiver
-                # print(f'Shop: {item.craftables[0].shopName}')  # Paul Pan Ranger Shop
-                # print(f'URL: {item.craftables[0].craftIngredients[1].item_url}')
-                # Output: https://eor-api.exile-studios.com/api/items/210
+                if item.sell_price > 0:
+                    item_embed.add_field(name='Sell Price', 
+                                        value=f'{item.sell_price} Eons',
+                                        inline=False)
 
                 item_embed.set_footer(text='Provided by Nerrevar - Data pulled from EOR-API')
 

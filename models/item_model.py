@@ -5,6 +5,45 @@ from enums import ItemType, ItemSubType
 
 # Data Models
 @dataclass
+class Stats:
+    hp: int
+    tp: int
+    sp: int
+    min_damage: int
+    max_damage: int
+    hit_rate: int
+    range: int
+    evasion: int
+    armor: int
+    critical_chance: int
+    power: int
+    accuracy: int
+    dexterity: int
+    defense: int
+    vitality: int
+    aura: int
+
+@dataclass
+class Elements:
+    light: int
+    dark: int
+    earth: int
+    air: int
+    water: int
+    fire: int
+
+@dataclass
+class Requirements:
+    required_level: int
+    required_class: int
+    required_power: int
+    required_accuracy: int
+    required_dexterity: int
+    required_defense: int
+    required_vitality: int
+    required_aura: int
+
+@dataclass
 class CraftIngredient:
     itemID: int
     quantity: int
@@ -18,51 +57,30 @@ class Craftable:
     craftIngredients: List[CraftIngredient]
 
 @dataclass
+class Drops:
+    itemID: int
+    drop_percent: int
+    item_url: str = ""
+
+@dataclass
 class Item:
     id: int
     name: str
     graphic: int
-    item_type: ItemType  # Use the Enum
-    item_sub_type: ItemSubType  # Use the Enum
+    item_type: ItemType  # Enum
+    item_sub_type: ItemSubType  # Enum
     item_unique: int
-    hp: int
-    tp: int
-    sp: int
-    min_damage: int
-    max_damage: int
-    hit_rate: int
-    evasion: int
-    armor: int
-    critical_chance: int
-    power: int
-    accuracy: int
-    dexterity: int
-    defense: int
-    vitality: int
-    aura: int
-    light: int
-    dark: int
-    earth: int
-    air: int
-    water: int
-    fire: int
+    stats: Stats  # Grouped stats
+    elements: Elements  # Grouped elemental attributes
+    requirements: Requirements  # Grouped requirements
     spec1: int
     spec2: int
     spec3: int
-    required_level: int
-    required_class: int
-    required_power: int
-    required_accuracy: int
-    required_dexterity: int
-    required_defense: int
-    required_vitality: int
-    required_aura: int
     weight: int
-    range: int
     aoe_flag: int
     size: int
     sell_price: int
-    drops: List[dict] = field(default_factory=list)
+    drops: List[Drops] = field(default_factory=list)
     craftables: List[Craftable] = field(default_factory=list)
     ingredientFor: List[dict] = field(default_factory=list)
     soldBy: List[dict] = field(default_factory=list)
@@ -85,26 +103,32 @@ def map_craftable(data: dict) -> Craftable:
         craftIngredients=craft_ingredients
     )
 
+def map_drops(data: dict) -> Drops:
+    return Drops(
+        itemID=data["itemID"],
+        drop_percent=data["drop_Percent"],
+        item_url=data["item_url"]
+    )
+
 def map_item(data: dict) -> Item:
     craftables = [map_craftable(craft) for craft in data.get('craftables', [])]
 
     # Convert item_type and item_sub_type to Enum values
     item_type = ItemType(data["item_type"])
-    item_sub_type = ItemSubType(data["item_sub_type"])
+    try:
+        item_sub_type = ItemSubType(data["item_sub_type"])
+    except ValueError:
+        item_sub_type = None  # Ignore invalid subtypes
 
-    return Item(
-        id=data["id"],
-        name=data["name"],
-        graphic=data["graphic"],
-        item_type=item_type,
-        item_sub_type=item_sub_type,
-        item_unique=data["item_unique"],
+    # Map grouped attributes
+    stats = Stats(
         hp=data["hp"],
         tp=data["tp"],
         sp=data["sp"],
         min_damage=data["min_damage"],
         max_damage=data["max_damage"],
         hit_rate=data["hit_rate"],
+        range=data["range"],
         evasion=data["evasion"],
         armor=data["armor"],
         critical_chance=data["critical_chance"],
@@ -113,16 +137,19 @@ def map_item(data: dict) -> Item:
         dexterity=data["dexterity"],
         defense=data["defense"],
         vitality=data["vitality"],
-        aura=data["aura"],
+        aura=data["aura"]
+    )
+
+    elements = Elements(
         light=data["light"],
         dark=data["dark"],
         earth=data["earth"],
         air=data["air"],
         water=data["water"],
-        fire=data["fire"],
-        spec1=data["spec1"],
-        spec2=data["spec2"],
-        spec3=data["spec3"],
+        fire=data["fire"]
+    )
+
+    requirements = Requirements(
         required_level=data["required_level"],
         required_class=data["required_class"],
         required_power=data["required_power"],
@@ -130,9 +157,24 @@ def map_item(data: dict) -> Item:
         required_dexterity=data["required_dexterity"],
         required_defense=data["required_defense"],
         required_vitality=data["required_vitality"],
-        required_aura=data["required_aura"],
+        required_aura=data["required_aura"]
+    )
+
+    # Return the fully mapped Item object
+    return Item(
+        id=data["id"],
+        name=data["name"],
+        graphic=data["graphic"],
+        item_type=item_type,
+        item_sub_type=item_sub_type,
+        item_unique=data["item_unique"],
+        stats=stats,
+        elements=elements,
+        requirements=requirements,
+        spec1=data["spec1"],
+        spec2=data["spec2"],
+        spec3=data["spec3"],
         weight=data["weight"],
-        range=data["range"],
         aoe_flag=data["aoe_flag"],
         size=data["size"],
         sell_price=data["sell_price"],
