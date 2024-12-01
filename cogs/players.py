@@ -29,10 +29,6 @@ class Players(commands.Cog):
             if player['name'].lower() == player_name.lower():
                 print(f'Player {player["name"]} found')
                 return player
-            else:
-                error_message = f'Failed to find the specified player: {player_name}'
-                print(error_message)
-                raise ValueError(error_message)
 
         error_message = f'Failed to find the specified player: {player_name}'
         print(error_message)
@@ -41,6 +37,7 @@ class Players(commands.Cog):
     # Lookup a player and return their Name, rank and xp
     @discord.slash_command(name='player', description='Returns the Name, XP and leaderboard rank of a player')
     async def player_lookup(self, ctx, player: str):
+        await ctx.response.defer()
         icon = discord.File(self.icon_path, filename=self.icon)
         players = self.fetch_all_players()
 
@@ -62,7 +59,7 @@ class Players(commands.Cog):
 
                 lookup_embed.set_footer(text='Provided by Nerrevar - Data pulled from EoDash')
 
-            await ctx.respond(file=icon, embed=lookup_embed)
+            await ctx.followup.send(file=icon, embed=lookup_embed)
         except ValueError as e:
             failure_embed = discord.Embed(title='Lookup Failure',
                                             description='Failed to find the specified Player',
@@ -75,6 +72,7 @@ class Players(commands.Cog):
     # Compare two players by xp and show the difference
     @discord.slash_command(name='player_compare', description='Compare two players by EXP and return the difference')
     async def player_compare(self, ctx, player1: str, player2: str):
+        await ctx.response.defer()
         icon = discord.File(self.icon_path, filename=self.icon)
         players = self.fetch_all_players()
 
@@ -112,7 +110,7 @@ class Players(commands.Cog):
             
                 compare_embed.set_footer(text='Provided by Nerrevar - Data pulled from EoDash')
 
-            await ctx.respond(file=icon, embed=compare_embed)
+            await ctx.followup.send(file=icon, embed=compare_embed)
         except ValueError as e:
             failure_embed = discord.Embed(title='Lookup Failure',
                                             description='One or both of the players could not be found',
