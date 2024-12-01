@@ -26,7 +26,7 @@ class Npcs(commands.Cog):
             return None
 
 
-    def fetch_npc_details(self, npcs, npc_name):
+    def fetch_details(self, npcs, npc_name):
         for npc in npcs:
             if npc['name'].lower() == npc_name.lower():
                 print(f'NPC {npc["name"]} found')
@@ -58,18 +58,18 @@ class Npcs(commands.Cog):
         
         return attributes
     
-    def get_drop_items(self, npc, drops):
-        drop_items = []
+    def get_drops(self, item, drops):
+        drop_items = {}
         for drop in drops:
             print(drop['item_url'])
-            npc_url = drop['item_url']
-            response = requests.get(npc_url)
+            item_url = drop['item_url']
+            response = requests.get(item_url)
 
             # Ensure response is valid
             if response.status_code == 200:
-                npc = response.json()
-                print(npc['name'])
-                drop_items.append(npc['name'])
+                item = response.json()
+                print(item['name'])
+                drop_items.update({item['name']: drop['drop_percent']})
             else:
                 print(f'Failed to fetch data. Status code: {response.status_code}')
                 return None
@@ -77,7 +77,7 @@ class Npcs(commands.Cog):
         return drop_items
 
     @discord.slash_command(name='npc_lookup', description='Returns information about an npc')
-    async def npc_lookup(self, ctx, item: str):
+    async def npc_lookup(self, ctx, npc: str):
         await ctx.response.defer()
         # declaring icon as discord file (Required per command)
         icon = discord.File(self.icon_path, filename=self.icon)
@@ -85,14 +85,14 @@ class Npcs(commands.Cog):
         npcs = self.fetch_all_items()
 
         if npcs:
-            npc = map_npc(self.fetch_item_details(npcs, npc))
+            npc = map_npc(self.fetch_details(npcs, npc))
 
             print(npc)
             if npc:
                 npc_embed = discord.Embed(title=npc.name,
                                             description='Placeholder',
                                             color=0x63037a)
-                npc_embed.set_author(name='Item Lookup',
+                npc_embed.set_author(name='NPC Lookup',
                                             icon_url=f'attachment://EO_Bot_Icon.png')
                 npc_embed.set_thumbnail(url=npc.graphic_url)
 
@@ -101,6 +101,11 @@ class Npcs(commands.Cog):
                     npc_embed.add_field(name='Stats', 
                                         value='\n'.join(f'{key}: {value}' for key, value in self.get_attributes(npc.stats).items()),
                                         inline=True)
+
+                if npc.drops:
+                    npc_embed.add_field(name='Drops', 
+                                        value='\n'.join(f'{item}: {percent}%' for item, percent in self.get_drops(npc, npc.drops).items()),
+                                        inline=False)
                 
                 npc_embed.set_footer(text='Provided by Nerrevar - Data pulled from EOR-API')
 

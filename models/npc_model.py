@@ -51,9 +51,9 @@ class Npc:
     stats: Stats
     level: int
     experience: int
-    drops: List[Drops] = field(default_factory=list)
     spawnMaps: int
     spawns: int
+    drops: List[Drops] = field(default_factory=list)
     respawn: str = ''
     graphic_url: str = ''
 
@@ -108,9 +108,9 @@ def map_npc(data: dict) -> Npc:
         stats=stats,
         level=data['level'],
         experience=data['experience'],
-        drops=data.get('drops', []),
         spawnMaps=data['spawnMaps'],
         spawns=data['spawns'],
+        drops=data.get('drops', []),
         respawn=data['respawn'],
         graphic_url=data['graphic_url']
     )
