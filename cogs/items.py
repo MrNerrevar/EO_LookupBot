@@ -23,11 +23,12 @@ class Items(commands.Cog):
             data = response.json()
             return data.get('data', [])
         else:
-            print(f'Failed to fetch data. Status code: {response.status_code}')
-            return None
+            error_message = f'Failed to fetch data. Status code: {response.status_code}'
+            print(error_message)
+            raise ValueError(error_message)
 
     
-    def fetch_item_details(self, items, item_name):
+    def fetch_details(self, items, item_name):
         for item in items:
             if item['name'].lower() == item_name.lower():
                 print(f'Item {item["name"]} found')
@@ -40,8 +41,13 @@ class Items(commands.Cog):
                     data = response.json()
                     return data
                 else:
-                    print(f'Failed to fetch data. Status code: {response.status_code}')
-                    return None
+                    error_message = f'Failed to fetch data. Status code: {response.status_code}'
+                    print(error_message)
+                    raise ValueError(error_message)
+                    
+        error_message = f'Item {item_name} not found'
+        print(error_message)
+        raise ValueError(error_message)
 
 
     def get_item_type(self, item: Item) -> str:
@@ -87,10 +93,11 @@ class Items(commands.Cog):
             # Ensure response is valid
             if response.status_code == 200:
                 npc = response.json()
-                drop_npcs.update({npc['name']: drop['percent']})
+                drop_npcs.update({npc['name']: drop['drop_percent']})
             else:
-                print(f'Failed to fetch data. Status code: {response.status_code}')
-                return None
+                error_message = f'Failed to fetch data. Status code: {response.status_code}'
+                print(error_message)
+                raise ValueError(error_message)
             
         return drop_npcs
 
@@ -103,8 +110,8 @@ class Items(commands.Cog):
 
         items = self.fetch_all_items()
 
-        if items:
-            item = map_item(self.fetch_item_details(items, item))
+        try:
+            item = map_item(self.fetch_details(items, item))
 
             if item:
                 item_embed = discord.Embed(title=item.name,
@@ -126,7 +133,7 @@ class Items(commands.Cog):
                 
                 if item.drops:
                     item_embed.add_field(name='Drops From', 
-                                        value='\n'.join(f'{npc}: {percent}%' for npc, percent in self.get_drops(item, item.drops).items()),
+                                        value='\n'.join(f'{key}: {value}%' for key, value in self.get_drops(item, item.drops).items()),
                                         inline=False)
 
                 if item.craftables:
@@ -142,6 +149,13 @@ class Items(commands.Cog):
                 item_embed.set_footer(text='Provided by Nerrevar - Data pulled from EOR-API')
 
             await ctx.followup.send(file=icon, embed=item_embed)
+        except ValueError as e:
+            failure_embed = discord.Embed(title='Lookup Failure',
+                                            description='Failed to find the specified Item',
+                                            color=0x63037a)
+            failure_embed.set_author(name='Item Lookup',
+                                            icon_url=f'attachment://EO_Bot_Icon.png')
+            await ctx.followup.send(file=icon, embed=failure_embed)
 
 def setup(bot):  # this is called by Pycord to setup the cog
     bot.add_cog(Items(bot))

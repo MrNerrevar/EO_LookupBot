@@ -22,8 +22,9 @@ class Npcs(commands.Cog):
             data = response.json()
             return data.get('data', [])
         else:
-            print(f'Failed to fetch data. Status code: {response.status_code}')
-            return None
+            error_message = f'Failed to fetch data. Status code: {response.status_code}'
+            print(error_message)
+            raise ValueError(error_message)
 
 
     def fetch_details(self, npcs, npc_name):
@@ -39,8 +40,13 @@ class Npcs(commands.Cog):
                     data = response.json()
                     return data
                 else:
-                    print(f'Failed to fetch data. Status code: {response.status_code}')
-                    return None
+                    error_message = f'Failed to fetch data. Status code: {response.status_code}'
+                    print(error_message)
+                    raise ValueError(error_message)
+                    
+        error_message = f'NPC {npc_name} not found'
+        print(error_message)
+        raise ValueError(error_message)
                 
     
     def get_npc_type(self, npc: Npc) -> str:
@@ -75,20 +81,21 @@ class Npcs(commands.Cog):
                 item = response.json()
                 drop_items.update({item['name']: drop['drop_percent']})
             else:
-                print(f'Failed to fetch data. Status code: {response.status_code}')
-                return None
+                error_message = f'Failed to fetch data. Status code: {response.status_code}'
+                print(error_message)
+                raise ValueError(error_message)
             
         return drop_items
 
     @discord.slash_command(name='npc', description='Returns information about an npc')
-    async def np_lookup(self, ctx, npc: str):
+    async def npc_lookup(self, ctx, npc: str):
         await ctx.response.defer()
         # declaring icon as discord file (Required per command)
         icon = discord.File(self.icon_path, filename=self.icon)
 
         npcs = self.fetch_all_items()
 
-        if npcs:
+        try:
             npc = map_npc(self.fetch_details(npcs, npc))
 
             if npc:
@@ -118,6 +125,13 @@ class Npcs(commands.Cog):
                 npc_embed.set_footer(text='Provided by Nerrevar - Data pulled from EOR-API')
 
             await ctx.followup.send(file=icon, embed=npc_embed)
+        except ValueError as e:
+            failure_embed = discord.Embed(title='Lookup Failure',
+                                            description='Failed to find the specified NPC',
+                                            color=0x63037a)
+            failure_embed.set_author(name='NPC Lookup',
+                                            icon_url=f'attachment://EO_Bot_Icon.png')
+            await ctx.followup.send(file=icon, embed=failure_embed)
 
 def setup(bot):  # this is called by Pycord to setup the cog
     bot.add_cog(Npcs(bot))
