@@ -1,7 +1,6 @@
-from enum import Enum
 from dataclasses import dataclass, field
-from typing import List, Optional
-from enums import NpcType
+from typing import List
+from enums import NpcBehavior
 
 # Data Models
 @dataclass
@@ -19,10 +18,10 @@ class Stats:
 class Drops:
     itemID: int
     drop_percent: int
-    item_url: str = ""
+    item_url: str = ''
 
 @dataclass
-class NPC:
+class Npc:
     id: int
     name: str
     default_boundary: int
@@ -30,7 +29,7 @@ class NPC:
     race: int
     boss: int
     child: int
-    behavior: NpcType
+    behavior: NpcBehavior
     vendor_id: int
     greeting_sfx_id: int
     agro_sfx_id: int
@@ -55,5 +54,63 @@ class NPC:
     drops: List[Drops] = field(default_factory=list)
     spawnMaps: int
     spawns: int
-    respawn: str = ""
-    graphic_url: str = ""
+    respawn: str = ''
+    graphic_url: str = ''
+
+def map_drops(data: dict) -> Drops:
+    return Drops(
+        itemID=data['itemID'],
+        drop_percent=data['drop_Percent'],
+        item_url=data['item_url']
+    )
+
+def map_npc(data: dict) -> Npc:
+    behavior = NpcBehavior(data['behavior'])
+
+    stats = Stats(
+        hp=data['hp'],
+        tp=data['tp'],
+        min_damage=data['min_damage'],
+        max_damage=data['max_damage'],
+        accuracy=data['accuracy'],
+        evasion=data['evasion'],
+        armor=data['armor'],
+        critical_chance=data['critical_chance']
+    )
+
+    return Npc(
+        id=data['id'],
+        name=data['name'],
+        default_boundary=data['default_boundary'],
+        graphic=data['graphic'],
+        race=data['race'],
+        boss=data['boss'],
+        child=data['child'],
+        behavior=behavior,
+        vendor_id=data['vendor_id'],
+        greeting_sfx_id=data['greeting_sfx_id'],
+        agro_sfx_id=data['agro_sfx_id'],
+        idle_sfx_id=data['idle_sfx_id'],
+        unk_sfx_id=data['unk_sfx_id'],
+        unk2_sfx_id=data['unk2_sfx_id'],
+        unk3_sfx_id=data['unk3_sfx_id'],
+        npc_respawn_secs=data['npc_respawn_secs'],
+        npc_spawn_time=data['npc_spawn_time'],
+        npc_default_speed=data['npc_default_speed'],
+        max_loaded_frames_flag=data['max_loaded_frames_flag'],
+        max_loaded_frames=data['max_loaded_frames'],
+        alpha_normal_frames=data['alpha_normal_frames'],
+        alpha_attack_frames=data['alpha_attack_frames'],
+        courage=data['courage'],
+        move_flag=data['move_flag'],
+        move_blocked=data['move_blocked'],
+        move_conveyor=data['move_conveyor'],
+        stats=stats,
+        level=data['level'],
+        experience=data['experience'],
+        drops=data.get('drops', []),
+        spawnMaps=data['spawnMaps'],
+        spawns=data['spawns'],
+        respawn=data['respawn'],
+        graphic_url=data['graphic_url']
+    )

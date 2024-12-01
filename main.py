@@ -16,7 +16,8 @@ bot = commands.Bot(command_prefix='/', intents=intents)
 
 cogs_list = [
     'players',
-    'items'
+    'items',
+    'npcs'
 ]
 
 

@@ -1,4 +1,4 @@
-from enum import Enum, auto
+from enum import Enum
 
 
 class ItemType(Enum):
@@ -63,7 +63,7 @@ class ItemSpecial(Enum):
     Cursed = 5
 
 
-class NpcType(Enum):
+class NpcBehavior(Enum):
     Friendly = 0
     Passive = 1
     Aggressive = 2

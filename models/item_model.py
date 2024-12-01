@@ -1,6 +1,5 @@
-from enum import Enum
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import List
 from enums import ItemType, ItemSubType
 
 # Data Models
@@ -60,7 +59,7 @@ class Craftable:
 class Drops:
     itemID: int
     drop_percent: int
-    item_url: str = ""
+    item_url: str = ''
 
 @dataclass
 class Item:
@@ -88,7 +87,7 @@ class Item:
     gatherableMaps: bool = False
     gatherableSpots: bool = False
     chestSpawnChests: bool = False
-    graphic_url: str = ""
+    graphic_url: str = ''
 
 # Mapping Functions
 def map_craft_ingredient(data: dict) -> CraftIngredient:
@@ -97,94 +96,94 @@ def map_craft_ingredient(data: dict) -> CraftIngredient:
 def map_craftable(data: dict) -> Craftable:
     craft_ingredients = [map_craft_ingredient(ing) for ing in data.get('craftIngredients', [])]
     return Craftable(
-        shopName=data["shopName"],
-        craftEon=data["craftEon"],
-        craftGold=data["craftGold"],
+        shopName=data['shopName'],
+        craftEon=data['craftEon'],
+        craftGold=data['craftGold'],
         craftIngredients=craft_ingredients
     )
 
 def map_drops(data: dict) -> Drops:
     return Drops(
-        itemID=data["itemID"],
-        drop_percent=data["drop_Percent"],
-        item_url=data["item_url"]
+        itemID=data['itemID'],
+        drop_percent=data['drop_Percent'],
+        item_url=data['item_url']
     )
 
 def map_item(data: dict) -> Item:
     craftables = [map_craftable(craft) for craft in data.get('craftables', [])]
 
     # Convert item_type and item_sub_type to Enum values
-    item_type = ItemType(data["item_type"])
+    item_type = ItemType(data['item_type'])
     try:
-        item_sub_type = ItemSubType(data["item_sub_type"])
+        item_sub_type = ItemSubType(data['item_sub_type'])
     except ValueError:
         item_sub_type = None  # Ignore invalid subtypes
 
     # Map grouped attributes
     stats = Stats(
-        hp=data["hp"],
-        tp=data["tp"],
-        sp=data["sp"],
-        min_damage=data["min_damage"],
-        max_damage=data["max_damage"],
-        hit_rate=data["hit_rate"],
-        range=data["range"],
-        evasion=data["evasion"],
-        armor=data["armor"],
-        critical_chance=data["critical_chance"],
-        power=data["power"],
-        accuracy=data["accuracy"],
-        dexterity=data["dexterity"],
-        defense=data["defense"],
-        vitality=data["vitality"],
-        aura=data["aura"]
+        hp=data['hp'],
+        tp=data['tp'],
+        sp=data['sp'],
+        min_damage=data['min_damage'],
+        max_damage=data['max_damage'],
+        hit_rate=data['hit_rate'],
+        range=data['range'],
+        evasion=data['evasion'],
+        armor=data['armor'],
+        critical_chance=data['critical_chance'],
+        power=data['power'],
+        accuracy=data['accuracy'],
+        dexterity=data['dexterity'],
+        defense=data['defense'],
+        vitality=data['vitality'],
+        aura=data['aura']
     )
 
     elements = Elements(
-        light=data["light"],
-        dark=data["dark"],
-        earth=data["earth"],
-        air=data["air"],
-        water=data["water"],
-        fire=data["fire"]
+        light=data['light'],
+        dark=data['dark'],
+        earth=data['earth'],
+        air=data['air'],
+        water=data['water'],
+        fire=data['fire']
     )
 
     requirements = Requirements(
-        required_level=data["required_level"],
-        required_class=data["required_class"],
-        required_power=data["required_power"],
-        required_accuracy=data["required_accuracy"],
-        required_dexterity=data["required_dexterity"],
-        required_defense=data["required_defense"],
-        required_vitality=data["required_vitality"],
-        required_aura=data["required_aura"]
+        required_level=data['required_level'],
+        required_class=data['required_class'],
+        required_power=data['required_power'],
+        required_accuracy=data['required_accuracy'],
+        required_dexterity=data['required_dexterity'],
+        required_defense=data['required_defense'],
+        required_vitality=data['required_vitality'],
+        required_aura=data['required_aura']
     )
 
     # Return the fully mapped Item object
     return Item(
-        id=data["id"],
-        name=data["name"],
-        graphic=data["graphic"],
+        id=data['id'],
+        name=data['name'],
+        graphic=data['graphic'],
         item_type=item_type,
         item_sub_type=item_sub_type,
-        item_unique=data["item_unique"],
+        item_unique=data['item_unique'],
         stats=stats,
         elements=elements,
         requirements=requirements,
-        spec1=data["spec1"],
-        spec2=data["spec2"],
-        spec3=data["spec3"],
-        weight=data["weight"],
-        aoe_flag=data["aoe_flag"],
-        size=data["size"],
-        sell_price=data["sell_price"],
-        drops=data.get("drops", []),
+        spec1=data['spec1'],
+        spec2=data['spec2'],
+        spec3=data['spec3'],
+        weight=data['weight'],
+        aoe_flag=data['aoe_flag'],
+        size=data['size'],
+        sell_price=data['sell_price'],
+        drops=data.get('drops', []),
         craftables=craftables,
-        ingredientFor=data.get("ingredientFor", []),
-        soldBy=data.get("soldBy", []),
-        questRewards=data.get("questRewards", []),
-        gatherableMaps=data.get("gatherableMaps", False),
-        gatherableSpots=data.get("gatherableSpots", False),
-        chestSpawnChests=data.get("chestSpawnChests", False),
-        graphic_url=data["graphic_url"]
+        ingredientFor=data.get('ingredientFor', []),
+        soldBy=data.get('soldBy', []),
+        questRewards=data.get('questRewards', []),
+        gatherableMaps=data.get('gatherableMaps', False),
+        gatherableSpots=data.get('gatherableSpots', False),
+        chestSpawnChests=data.get('chestSpawnChests', False),
+        graphic_url=data['graphic_url']
     )

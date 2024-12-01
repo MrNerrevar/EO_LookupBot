@@ -1,12 +1,8 @@
 
 import discord
-import asyncio
 from discord.ext import commands
 import requests
-import os
 from enums import ItemType, ItemSubType
-from types import SimpleNamespace
-from typing import Any, Union
 from models.item_model import Item, map_item
 from dataclasses import fields
 
@@ -38,18 +34,18 @@ class Items(commands.Cog):
 
                 item_url = item['url']
                 print(item_url)
-                item_response = requests.get(item_url)
+                response = requests.get(item_url)
 
                 # Ensure response is valid
-                if item_response.status_code == 200:
-                    data = item_response.json()
+                if response.status_code == 200:
+                    data = response.json()
                     return data
                 else:
                     print(f'Failed to fetch data. Status code: {response.status_code}')
                     return None
 
 
-    def get_item_description(self, item: Item) -> str:
+    def get_item_type(self, item: Item) -> str:
         # If item_type is Weapon
         if item.item_type == ItemType.Weapon:
             if (item.item_sub_type == ItemSubType.Ranged) or int(item.stats.range > 0):
@@ -68,7 +64,7 @@ class Items(commands.Cog):
         return f'{item.item_type.name} Item'
 
 
-    def get_item_attributes(self, item):
+    def get_attributes(self, item):
         attributes = {}
         # Iterate through all attributes of the item object
         for field in fields(item):
@@ -83,8 +79,8 @@ class Items(commands.Cog):
         return attributes
 
     
-    def get_drop_npcs(self, item, drops):
-        drop_npcs = []
+    def get_drops(self, item, drops):
+        drop_npcs = {}
         for drop in drops:
             print(drop['npc_url'])
             npc_url = drop['npc_url']
@@ -94,7 +90,7 @@ class Items(commands.Cog):
             if response.status_code == 200:
                 npc = response.json()
                 print(npc['name'])
-                drop_npcs.append(npc['name'])
+                drop_npcs.update({npc['name']: drop['percent']})
             else:
                 print(f'Failed to fetch data. Status code: {response.status_code}')
                 return None
@@ -116,29 +112,25 @@ class Items(commands.Cog):
             print(item)
             if item:
                 item_embed = discord.Embed(title=item.name,
-                                            description=self.get_item_description(item),
+                                            description=self.get_item_type(item),
                                             color=0x63037a)
                 item_embed.set_author(name='Item Lookup',
                                             icon_url=f'attachment://EO_Bot_Icon.png')
                 item_embed.set_thumbnail(url=item.graphic_url)
 
-                if self.get_item_attributes(item.stats):
+                if self.get_attributes(item.stats):
                     item_embed.add_field(name='Stats', 
-                                        value='\n'.join(f'{key}: {value}' for key, value in self.get_item_attributes(item.stats).items()),
+                                        value='\n'.join(f'{key}: {value}' for key, value in self.get_attributes(item.stats).items()),
                                         inline=True)
 
-                if self.get_item_attributes(item.requirements):
+                if self.get_attributes(item.requirements):
                     item_embed.add_field(name='Requirements', 
-                                        value='\n'.join(f'{key}: {value}' for key, value in self.get_item_attributes(item.requirements).items()),
+                                        value='\n'.join(f'{key}: {value}' for key, value in self.get_attributes(item.requirements).items()),
                                         inline=True)
                 
                 if item.drops:
-                    drops = self.get_drop_npcs(item, item.drops)
-
-                    #Needs to be fixed to show all NPCs, currently only last in the list
-                    print(f'Drops: {drops}')
                     item_embed.add_field(name='Drops From', 
-                                        value='\n'.join(f'{npc}' for npc in drops),
+                                        value='\n'.join(f'{npc}: {percent}%' for npc, percent in self.get_drops(item, item.drops).items()),
                                         inline=False)
 
                 if item.craftables:
