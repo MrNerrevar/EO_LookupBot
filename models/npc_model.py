@@ -15,6 +15,13 @@ class Stats:
     critical_chance: int
 
 @dataclass
+class Info:
+    level: int
+    experience: int
+    spawnMaps: int
+    respawn: str = ''
+
+@dataclass
 class Drops:
     itemID: int
     drop_percent: int
@@ -49,12 +56,9 @@ class Npc:
     move_blocked: int
     move_conveyor: int
     stats: Stats
-    level: int
-    experience: int
-    spawnMaps: int
+    info: Info
     spawns: int
     drops: List[Drops] = field(default_factory=list)
-    respawn: str = ''
     graphic_url: str = ''
 
 def map_drops(data: dict) -> Drops:
@@ -76,6 +80,13 @@ def map_npc(data: dict) -> Npc:
         evasion=data['evasion'],
         armor=data['armor'],
         critical_chance=data['critical_chance']
+    )
+
+    info = Info(
+        level=data['level'],
+        experience=data['experience'],
+        spawnMaps=data['spawnMaps'],
+        respawn=data['respawn']
     )
 
     return Npc(
@@ -106,11 +117,8 @@ def map_npc(data: dict) -> Npc:
         move_blocked=data['move_blocked'],
         move_conveyor=data['move_conveyor'],
         stats=stats,
-        level=data['level'],
-        experience=data['experience'],
-        spawnMaps=data['spawnMaps'],
+        info=info,
         spawns=data['spawns'],
         drops=data.get('drops', []),
-        respawn=data['respawn'],
         graphic_url=data['graphic_url']
     )

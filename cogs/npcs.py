@@ -32,7 +32,6 @@ class Npcs(commands.Cog):
                 print(f'NPC {npc["name"]} found')
 
                 npc_url = npc['url']
-                print(npc_url)
                 response = requests.get(npc_url)
 
                 # Ensure response is valid
@@ -46,7 +45,7 @@ class Npcs(commands.Cog):
     
     def get_npc_type(self, npc: Npc) -> str:
         if npc.boss:
-            return f'{npc.behavior.name} {npc.boss.name}'
+            return f'{npc.behavior.name} Boss'
         else:
             return f'{npc.behavior.name}'
                 
@@ -57,7 +56,7 @@ class Npcs(commands.Cog):
         for field in fields(npc):
             attribute_name = field.name
             attribute_value = getattr(npc, attribute_name)
-            if attribute_value > 0:
+            if (isinstance(attribute_value, int) and (attribute_value > 0)) or (isinstance(attribute_value, str)):
                 # Format the label (replace underscores with spaces and capitalize each word)
                 formatted_label = attribute_name.replace("_", " ").title()
 
@@ -68,14 +67,12 @@ class Npcs(commands.Cog):
     def get_drops(self, item, drops):
         drop_items = {}
         for drop in drops:
-            print(drop['item_url'])
             item_url = drop['item_url']
             response = requests.get(item_url)
 
             # Ensure response is valid
             if response.status_code == 200:
                 item = response.json()
-                print(item['name'])
                 drop_items.update({item['name']: drop['drop_percent']})
             else:
                 print(f'Failed to fetch data. Status code: {response.status_code}')
@@ -83,8 +80,8 @@ class Npcs(commands.Cog):
             
         return drop_items
 
-    @discord.slash_command(name='npc_lookup', description='Returns information about an npc')
-    async def npc_lookup(self, ctx, npc: str):
+    @discord.slash_command(name='Npc Lookup', description='Returns information about an npc')
+    async def npc(self, ctx, npc: str):
         await ctx.response.defer()
         # declaring icon as discord file (Required per command)
         icon = discord.File(self.icon_path, filename=self.icon)
@@ -94,7 +91,6 @@ class Npcs(commands.Cog):
         if npcs:
             npc = map_npc(self.fetch_details(npcs, npc))
 
-            print(npc)
             if npc:
                 npc_embed = discord.Embed(title=npc.name,
                                             description=self.get_npc_type(npc),
@@ -109,9 +105,14 @@ class Npcs(commands.Cog):
                                         value='\n'.join(f'{key}: {value}' for key, value in self.get_attributes(npc.stats).items()),
                                         inline=True)
 
+                if self.get_attributes(npc.info):
+                    npc_embed.add_field(name='Info',
+                                        value='\n'.join(f'{key}: {value}' for key, value in self.get_attributes(npc.info).items()),
+                                        inline=True)
+
                 if npc.drops:
                     npc_embed.add_field(name='Drops', 
-                                        value='\n'.join(f'{item}: {percent}%' for item, percent in self.get_drops(npc, npc.drops).items()),
+                                        value='\n'.join(f'{key}: {value}%' for key, value in self.get_drops(npc, npc.drops).items()),
                                         inline=False)
                 
                 npc_embed.set_footer(text='Provided by Nerrevar - Data pulled from EOR-API')

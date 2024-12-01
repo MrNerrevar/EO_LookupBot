@@ -33,8 +33,8 @@ class Players(commands.Cog):
         return None
 
     # Lookup a player and return their Name, rank and xp
-    @discord.slash_command(name='lookup', description='Returns the Name, XP and leaderboard rank of a player')
-    async def lookup(self, ctx, player: str):
+    @discord.slash_command(name='Player Lookup', description='Returns the Name, XP and leaderboard rank of a player')
+    async def player(self, ctx, player: str):
         icon = discord.File(self.icon_path, filename=self.icon)
         players = self.fetch_all_players()
 
@@ -64,7 +64,7 @@ class Players(commands.Cog):
         await ctx.respond(file=icon, embed=lookup_embed)
 
     # Compare two players by xp and show the difference
-    @discord.slash_command(name='compare', description='Compare two players by EXP and return the difference')
+    @discord.slash_command(name='Player Compare', description='Compare two players by EXP and return the difference')
     async def compare(self, ctx, player1: str, player2: str):
         icon = discord.File(self.icon_path, filename=self.icon)
         players = self.fetch_all_players()

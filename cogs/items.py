@@ -33,7 +33,6 @@ class Items(commands.Cog):
                 print(f'Item {item["name"]} found')
 
                 item_url = item['url']
-                print(item_url)
                 response = requests.get(item_url)
 
                 # Ensure response is valid
@@ -82,14 +81,12 @@ class Items(commands.Cog):
     def get_drops(self, item, drops):
         drop_npcs = {}
         for drop in drops:
-            print(drop['npc_url'])
             npc_url = drop['npc_url']
             response = requests.get(npc_url)
 
             # Ensure response is valid
             if response.status_code == 200:
                 npc = response.json()
-                print(npc['name'])
                 drop_npcs.update({npc['name']: drop['percent']})
             else:
                 print(f'Failed to fetch data. Status code: {response.status_code}')
@@ -98,8 +95,8 @@ class Items(commands.Cog):
         return drop_npcs
 
 
-    @discord.slash_command(name='item_lookup', description='Returns information about an item')
-    async def item_lookup(self, ctx, item: str):
+    @discord.slash_command(name='Item Lookup', description='Returns information about an item')
+    async def item(self, ctx, item: str):
         await ctx.response.defer()
         # declaring icon as discord file (Required per command)
         icon = discord.File(self.icon_path, filename=self.icon)
@@ -109,7 +106,6 @@ class Items(commands.Cog):
         if items:
             item = map_item(self.fetch_item_details(items, item))
 
-            print(item)
             if item:
                 item_embed = discord.Embed(title=item.name,
                                             description=self.get_item_type(item),
