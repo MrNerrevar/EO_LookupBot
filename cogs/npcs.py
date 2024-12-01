@@ -43,6 +43,13 @@ class Npcs(commands.Cog):
                     print(f'Failed to fetch data. Status code: {response.status_code}')
                     return None
                 
+    
+    def get_npc_type(self, npc: Npc) -> str:
+        if npc.boss:
+            return f'{npc.behavior.name} {npc.boss.name}'
+        else:
+            return f'{npc.behavior.name}'
+                
 
     def get_attributes(self, npc):
         attributes = {}
@@ -90,7 +97,7 @@ class Npcs(commands.Cog):
             print(npc)
             if npc:
                 npc_embed = discord.Embed(title=npc.name,
-                                            description='Placeholder',
+                                            description=self.get_npc_type(npc),
                                             color=0x63037a)
                 npc_embed.set_author(name='NPC Lookup',
                                             icon_url=f'attachment://EO_Bot_Icon.png')
