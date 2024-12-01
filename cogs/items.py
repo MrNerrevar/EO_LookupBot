@@ -95,8 +95,8 @@ class Items(commands.Cog):
         return drop_npcs
 
 
-    @discord.slash_command(name='Item Lookup', description='Returns information about an item')
-    async def item(self, ctx, item: str):
+    @discord.slash_command(name='item', description='Returns information about an item')
+    async def item_lookup(self, ctx, item: str):
         await ctx.response.defer()
         # declaring icon as discord file (Required per command)
         icon = discord.File(self.icon_path, filename=self.icon)
