@@ -1,10 +1,12 @@
 
-import discord
-from discord.ext import commands
-import requests
-from enums import ItemType, ItemSubType
-from models.item_model import Item, map_item
 from dataclasses import fields
+
+import discord
+import requests
+from discord.ext import commands
+
+from enums import ItemSubType, ItemType
+from models.item_model import Item, map_item
 
 
 class Items(commands.Cog):
@@ -18,7 +20,7 @@ class Items(commands.Cog):
         base_url = 'https://eor-api.exile-studios.com/api/items'
         response = requests.get(base_url)
 
-        # Ensure response is valid
+        
         if response.status_code == 200:
             data = response.json()
             return data.get('data', [])
@@ -36,7 +38,6 @@ class Items(commands.Cog):
                 item_url = item['url']
                 response = requests.get(item_url)
 
-                # Ensure response is valid
                 if response.status_code == 200:
                     data = response.json()
                     return data
@@ -65,20 +66,17 @@ class Items(commands.Cog):
             else:
                 return 'Shield'
 
-        # Default output if no conditions are met
         return f'{item.item_type.name} Item'
 
 
     def get_attributes(self, item):
         attributes = {}
-        # Iterate through all attributes of the item object
+        
         for field in fields(item):
             attribute_name = field.name
             attribute_value = getattr(item, attribute_name)
             if attribute_value > 0:
-                # Format the label (replace underscores with spaces and capitalize each word)
                 formatted_label = attribute_name.replace("_", " ").title()
-
                 attributes.update({formatted_label: attribute_value})
         
         return attributes
@@ -90,7 +88,6 @@ class Items(commands.Cog):
             npc_url = drop['npc_url']
             response = requests.get(npc_url)
 
-            # Ensure response is valid
             if response.status_code == 200:
                 npc = response.json()
                 drop_npcs.update({npc['name']: drop['drop_percent']})
@@ -105,7 +102,7 @@ class Items(commands.Cog):
     @discord.slash_command(name='item', description='Returns information about an item')
     async def item_lookup(self, ctx, item: str):
         await ctx.response.defer()
-        # declaring icon as discord file (Required per command)
+
         icon = discord.File(self.icon_path, filename=self.icon)
 
         items = self.fetch_all_items()
@@ -118,7 +115,7 @@ class Items(commands.Cog):
                                             description=self.get_item_type(item),
                                             color=0x63037a)
                 item_embed.set_author(name='Item Lookup',
-                                            icon_url=f'attachment://EO_Bot_Icon.png')
+                                            icon_url='attachment://EO_Bot_Icon.png')
                 item_embed.set_thumbnail(url=item.graphic_url)
 
                 if self.get_attributes(item.stats):
@@ -149,13 +146,13 @@ class Items(commands.Cog):
                 item_embed.set_footer(text='Provided by Nerrevar - Data pulled from EOR-API')
 
             await ctx.followup.send(file=icon, embed=item_embed)
-        except ValueError as e:
+        except ValueError:
             failure_embed = discord.Embed(title='Lookup Failure',
                                             description='Failed to find the specified Item',
                                             color=0x63037a)
             failure_embed.set_author(name='Item Lookup',
-                                            icon_url=f'attachment://EO_Bot_Icon.png')
+                                            icon_url='attachment://EO_Bot_Icon.png')
             await ctx.followup.send(file=icon, embed=failure_embed)
 
-def setup(bot):  # this is called by Pycord to setup the cog
+def setup(bot):  
     bot.add_cog(Items(bot))
