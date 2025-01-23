@@ -14,7 +14,6 @@ class Players(commands.Cog):
         url = 'https://eodash.com/api/players'
         response = requests.get(url)
 
-        
         if response.status_code == 200:
             data = response.json()
             return data.get('players', [])

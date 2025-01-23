@@ -34,7 +34,6 @@ class Npcs(commands.Cog):
 
                 npc_url = npc['url']
                 response = requests.get(npc_url)
-
                 
                 if response.status_code == 200:
                     data = response.json()

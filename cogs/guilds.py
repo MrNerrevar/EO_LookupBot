@@ -1,85 +1,9 @@
+import json
+
 import discord
+import requests
 from discord.ext import commands
-
-
-class PaginationView(discord.ui.View):
-    current_page : int = 1
-    sep : int = 10
-
-    async def send(self, ctx):
-        self.message = await ctx.send(view=self)
-        await self.update_message(self.data[:self.sep])
-
-    def create_embed(self, data):
-        embed = discord.Embed(title="Guild Leaderboard", description=f"{self.current_page} / {int(len(self.data) / self.sep) + 1}")
-        embed.add_field(name='Characters', 
-                        value="\n".join(f"{name}" for name in data), 
-                        inline=False)
-        return embed
-
-    async def update_message(self,data):
-        self.update_buttons()
-        await self.message.edit(embed=self.create_embed(data), view=self)
-
-    def update_buttons(self):
-        if self.current_page == 1:
-            self.first_page_button.disabled = True
-            self.prev_button.disabled = True
-            self.first_page_button.style = discord.ButtonStyle.gray
-            self.prev_button.style = discord.ButtonStyle.gray
-        else:
-            self.first_page_button.disabled = False
-            self.prev_button.disabled = False
-            self.first_page_button.style = discord.ButtonStyle.green
-            self.prev_button.style = discord.ButtonStyle.primary
-
-        if self.current_page == int(len(self.data) / self.sep) + 1:
-            self.next_button.disabled = True
-            self.last_page_button.disabled = True
-            self.last_page_button.style = discord.ButtonStyle.gray
-            self.next_button.style = discord.ButtonStyle.gray
-        else:
-            self.next_button.disabled = False
-            self.last_page_button.disabled = False
-            self.last_page_button.style = discord.ButtonStyle.green
-            self.next_button.style = discord.ButtonStyle.primary
-
-    def get_current_page_data(self):
-        until_item = self.current_page * self.sep
-        from_item = until_item - self.sep
-        if not self.current_page == 1:
-            from_item = 0
-            until_item = self.sep
-        if self.current_page == int(len(self.data) / self.sep) + 1:
-            from_item = self.current_page * self.sep - self.sep
-            until_item = len(self.data)
-        return self.data[from_item:until_item]
-
-
-    @discord.ui.button(label="|<", style=discord.ButtonStyle.green)
-    async def first_page_button(self, interaction:discord.Interaction, button: discord.ui.Button):
-        await interaction.response.defer()
-        self.current_page = 1
-
-        await self.update_message(self.get_current_page_data())
-
-    @discord.ui.button(label="<", style=discord.ButtonStyle.primary)
-    async def prev_button(self, interaction:discord.Interaction, button: discord.ui.Button):
-        await interaction.response.defer()
-        self.current_page -= 1
-        await self.update_message(self.get_current_page_data())
-
-    @discord.ui.button(label=">", style=discord.ButtonStyle.primary)
-    async def next_button(self, interaction:discord.Interaction, button: discord.ui.Button):
-        await interaction.response.defer()
-        self.current_page += 1
-        await self.update_message(self.get_current_page_data())
-
-    @discord.ui.button(label=">|", style=discord.ButtonStyle.green)
-    async def last_page_button(self, interaction:discord.Interaction, button: discord.ui.Button):
-        await interaction.response.defer()
-        self.current_page = int(len(self.data) / self.sep) + 1
-        await self.update_message(self.get_current_page_data())
+from discord.ext.pages import Page, Paginator
 
 
 class Guilds(commands.Cog):
@@ -88,11 +12,48 @@ class Guilds(commands.Cog):
         self.icon_path = "images/EO_Bot_Icon.png"
         self.icon = "EO_Bot_Icon.png"
 
-    @discord.slash_command(
-        name="guild_list", description="Returns a list of Guild members"
-    )
+    def fetch_all_players(self):
+        url = 'https://eodash.com/api/players'
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            data = response.json()
+            return data.get('players', [])
+        else:
+            error_message = f'Failed to fetch data. Status code: {response.status_code}'
+            print(error_message)
+            raise ValueError(error_message)
+
+    def find_player_by_name(self, players, player_name):
+        for player in players:
+            if player['name'].lower() == player_name.lower():
+                print(f'Player {player["name"]} found')
+                return player
+
+        error_message = f'Failed to find the specified player: {player_name}'
+        print(error_message)
+        raise ValueError(error_message)
+
+    def process_member_list(self, lookup_names, output_file):
+        players = self.fetch_all_players()
+        
+        member_list = []
+        for member in lookup_names:
+            player = self.find_player_by_name(players, member)
+
+            if player:
+                member_list.append(player)
+
+            with open(output_file, "w") as f:
+                json.dump(member_list, f, indent=4)
+
+            print(f"Filtered data saved to {output_file}")
+            
+
+    @discord.slash_command(name="guild_list", description="Returns a list of Guild members")
     async def guild_lookup(self, ctx):
-        #await ctx.response.defer()
+        await ctx.response.defer()
+        icon = discord.File(self.icon_path, filename=self.icon)
 
         member_names = [
             "Nerrevar",
@@ -122,9 +83,7 @@ class Guilds(commands.Cog):
             "Gibby",
         ]
 
-        pagination_view = PaginationView(timeout=None)
-        pagination_view.data = member_names
-
+        self.process_member_list(member_names, 'members.json')
         # guild = ctx.guild
 
         # for member in guild.members:
@@ -133,8 +92,34 @@ class Guilds(commands.Cog):
 
         print("\n".join(member_names))
 
+        split_size = 10 
+
+        splits = [member_names[i:i + split_size] for i in range(0, len(member_names), split_size)]
+
+        leaderboard_pages = []
+        #embeds = []
+        # Example: Process each chunk (e.g., print or apply some operations)
+        for split, names in enumerate(splits, start=1):
+            #print(f"Processing Chunk {idx}: {split}")
+            leaderboard_embed = discord.Embed(title=f'Page {split}', color=0x63037a)
+            leaderboard_embed.set_author(name='Guild Leaderboard',
+                                        icon_url='attachment://EO_Bot_Icon.png')
+            leaderboard_embed.set_thumbnail(url='attachment://EO_Bot_Icon.png')
+
+            leaderboard_embed.add_field(name='Rank', value='testrank', inline=True)
+            leaderboard_embed.add_field(name='Name', value='\n'.join(f'{names}' for name in names), inline=True)
+            leaderboard_embed.add_field(name='Level', value='testlevel', inline=True)
+
+            leaderboard_embed.set_footer(text='Provided by Nerrevar - Data pulled from EoDash')
+
+            #embeds.append(leaderboard_embed)
+            leaderboard_pages.append(Page(embeds=[leaderboard_embed], files=[icon]))
+
         #await ctx.followup.send("\n".join(member_names))
-        await pagination_view.send(ctx)
+
+        leaderboard = Paginator(pages=leaderboard_pages)
+        await leaderboard.respond(ctx.interaction)
+        #await ctx.followup.send(file=icon, Paginator=leaderboard)
 
 def setup(bot):
     bot.add_cog(Guilds(bot))

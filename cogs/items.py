@@ -19,7 +19,6 @@ class Items(commands.Cog):
     def fetch_all_items(self):
         base_url = 'https://eor-api.exile-studios.com/api/items'
         response = requests.get(base_url)
-
         
         if response.status_code == 200:
             data = response.json()
