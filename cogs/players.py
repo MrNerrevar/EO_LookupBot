@@ -1,3 +1,7 @@
+# Player lookups are currently broken
+# Due to Vult-r disabling relevant player data availability.
+# Everything in here is now somewhat deprecated
+
 import discord
 import requests
 from discord.ext import commands

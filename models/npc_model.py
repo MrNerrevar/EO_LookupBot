@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 from typing import List
+
 from enums import NpcBehavior
+
 
 # Data Models
 @dataclass
@@ -41,9 +43,9 @@ class Npc:
     greeting_sfx_id: int
     agro_sfx_id: int
     idle_sfx_id: int
-    unk_sfx_id: int
-    unk2_sfx_id: int
-    unk3_sfx_id: int
+    attack_sfx_id: int
+    walk_sfx_id: int
+    alert_sfx_id: int
     npc_respawn_secs: int
     npc_spawn_time: int
     npc_default_speed: int
@@ -51,7 +53,6 @@ class Npc:
     max_loaded_frames: int
     alpha_normal_frames: int
     alpha_attack_frames: int
-    courage: int
     move_flag: int
     move_blocked: int
     move_conveyor: int
@@ -102,9 +103,9 @@ def map_npc(data: dict) -> Npc:
         greeting_sfx_id=data['greeting_sfx_id'],
         agro_sfx_id=data['agro_sfx_id'],
         idle_sfx_id=data['idle_sfx_id'],
-        unk_sfx_id=data['unk_sfx_id'],
-        unk2_sfx_id=data['unk2_sfx_id'],
-        unk3_sfx_id=data['unk3_sfx_id'],
+        attack_sfx_id=data['attack_sfx_id'],
+        walk_sfx_id=data['walk_sfx_id'],
+        alert_sfx_id=data['alert_sfx_id'],
         npc_respawn_secs=data['npc_respawn_secs'],
         npc_spawn_time=data['npc_spawn_time'],
         npc_default_speed=data['npc_default_speed'],
@@ -112,7 +113,6 @@ def map_npc(data: dict) -> Npc:
         max_loaded_frames=data['max_loaded_frames'],
         alpha_normal_frames=data['alpha_normal_frames'],
         alpha_attack_frames=data['alpha_attack_frames'],
-        courage=data['courage'],
         move_flag=data['move_flag'],
         move_blocked=data['move_blocked'],
         move_conveyor=data['move_conveyor'],
