@@ -1,8 +1,9 @@
 from dataclasses import dataclass, field
 from typing import List
-from enums import ItemType, ItemSubType
 
-# Data Models
+from enums import ItemSubType, ItemType
+
+
 @dataclass
 class Stats:
     hp: int
@@ -66,12 +67,12 @@ class Item:
     id: int
     name: str
     graphic: int
-    item_type: ItemType  # Enum
-    item_sub_type: ItemSubType  # Enum
+    item_type: ItemType
+    item_sub_type: ItemSubType
     item_unique: int
-    stats: Stats  # Grouped stats
-    elements: Elements  # Grouped elemental attributes
-    requirements: Requirements  # Grouped requirements
+    stats: Stats
+    elements: Elements
+    requirements: Requirements
     spec1: int
     spec2: int
     spec3: int
@@ -89,7 +90,6 @@ class Item:
     chestSpawnChests: bool = False
     graphic_url: str = ''
 
-# Mapping Functions
 def map_craft_ingredient(data: dict) -> CraftIngredient:
     return CraftIngredient(**data)
 
@@ -119,7 +119,6 @@ def map_item(data: dict) -> Item:
     except ValueError:
         item_sub_type = None  # Ignore invalid subtypes
 
-    # Map grouped attributes
     stats = Stats(
         hp=data['hp'],
         tp=data['tp'],
@@ -159,7 +158,6 @@ def map_item(data: dict) -> Item:
         required_aura=data['required_aura']
     )
 
-    # Return the fully mapped Item object
     return Item(
         id=data['id'],
         name=data['name'],

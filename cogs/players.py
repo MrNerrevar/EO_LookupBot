@@ -1,7 +1,10 @@
+# Player lookups are currently broken
+# Due to Vult-r disabling relevant player data availability.
+# Everything in here is now somewhat deprecated
+
 import discord
-from discord.ext import commands
 import requests
-import os
+from discord.ext import commands
 
 
 class Players(commands.Cog):
@@ -15,7 +18,6 @@ class Players(commands.Cog):
         url = 'https://eodash.com/api/players'
         response = requests.get(url)
 
-        # Ensure response is valid
         if response.status_code == 200:
             data = response.json()
             return data.get('players', [])
@@ -49,8 +51,8 @@ class Players(commands.Cog):
                                             description=f'Details of the player {player["name"]}',
                                             color=0x63037a)
                 lookup_embed.set_author(name='Player Lookup',
-                                            icon_url=f'attachment://EO_Bot_Icon.png')
-                lookup_embed.set_thumbnail(url=f'attachment://EO_Bot_Icon.png')
+                                            icon_url='attachment://EO_Bot_Icon.png')
+                lookup_embed.set_thumbnail(url='attachment://EO_Bot_Icon.png')
 
                 lookup_embed.add_field(name='Level', value=f'{player['level']}', inline=True)
                 lookup_embed.add_field(name='Experience', value=f'{player['exp']:,}', inline=True)
@@ -60,12 +62,12 @@ class Players(commands.Cog):
                 lookup_embed.set_footer(text='Provided by Nerrevar - Data pulled from EoDash')
 
             await ctx.followup.send(file=icon, embed=lookup_embed)
-        except ValueError as e:
+        except ValueError:
             failure_embed = discord.Embed(title='Lookup Failure',
                                             description='Failed to find the specified Player',
                                             color=0x63037a)
             failure_embed.set_author(name='Player Lookup',
-                                            icon_url=f'attachment://EO_Bot_Icon.png')
+                                            icon_url='attachment://EO_Bot_Icon.png')
             await ctx.followup.send(file=icon, embed=failure_embed)
 
 
@@ -85,8 +87,8 @@ class Players(commands.Cog):
                                                 description=f'Exp difference between {player1['name']} and {player2['name']}',
                                                 color=0x63037a)
                 compare_embed.set_author(name='Player Comparison',
-                                                icon_url=f'attachment://EO_Bot_Icon.png')
-                compare_embed.set_thumbnail(url=f'attachment://EO_Bot_Icon.png')
+                                                icon_url='attachment://EO_Bot_Icon.png')
+                compare_embed.set_thumbnail(url='attachment://EO_Bot_Icon.png')
 
                 compare_embed.add_field(name=f'{player1['name']}',
                                         value=f'Lvl: {player1['level']} - Exp: {player1['exp']:,}', inline=True)
@@ -111,13 +113,13 @@ class Players(commands.Cog):
                 compare_embed.set_footer(text='Provided by Nerrevar - Data pulled from EoDash')
 
             await ctx.followup.send(file=icon, embed=compare_embed)
-        except ValueError as e:
+        except ValueError:
             failure_embed = discord.Embed(title='Lookup Failure',
                                             description='One or both of the players could not be found',
                                             color=0x63037a)
             failure_embed.set_author(name='Player Comparison',
-                                            icon_url=f'attachment://EO_Bot_Icon.png')
+                                            icon_url='attachment://EO_Bot_Icon.png')
             await ctx.followup.send(file=icon, embed=failure_embed)
             
-def setup(bot):  # this is called by Pycord to setup the cog
+def setup(bot):  
     bot.add_cog(Players(bot))

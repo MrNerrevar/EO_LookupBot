@@ -1,7 +1,9 @@
-import os
-import discord
 import asyncio
+import os
+
+import discord
 from discord.ext import commands
+
 #from dotenv import load_dotenv
 
 #load_dotenv()
@@ -11,13 +13,13 @@ TOKEN = os.environ["DISCORD_TOKEN"]
 intents = discord.Intents.default()
 intents.message_content = True
 
-# Initialize the bot with the command prefix and intents
 bot = commands.Bot(command_prefix='/', intents=intents)
 
+# Players cog temporarily disabled.
 cogs_list = [
-    'players',
     'items',
-    'npcs'
+    'npcs',
+    'guilds'
 ]
 
 
@@ -32,7 +34,6 @@ async def on_ready():
     print('------')
 
 
-# Error handling for app commands
 async def cog_command_error(self, ctx: commands.Context, error: commands.CommandError):
     if isinstance(error, commands.CommandOnCooldown):
         await ctx.send_message(f'You\'re on cooldown! Try again in {error.retry_after:.2f} seconds.',
