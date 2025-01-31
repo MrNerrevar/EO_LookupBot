@@ -13,3 +13,4 @@ class Player:
     exp: int
     movement: str
     position: int
+    
