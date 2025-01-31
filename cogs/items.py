@@ -29,29 +29,31 @@ class Items(commands.Cog):
             raise ValueError(error_message)
 
     
-    def fetch_details(self, items, item_name):
+    def fetch_details(self, items, item_arg):
+        print(f'Search for: {item_arg}')
         for item in items:
-            if item['name'].lower() == item_name.lower():
+            if (item['name'].lower() == item_arg.lower()) or (item['id'] == int(item_arg)):
                 print(f'Item {item["name"]} found')
+                print(f'Item ID: {item["id"]}')
 
                 item_url = item['url']
                 response = requests.get(item_url)
 
                 if response.status_code == 200:
                     data = response.json()
+                    print(data)
                     return data
                 else:
                     error_message = f'Failed to fetch data. Status code: {response.status_code}'
                     print(error_message)
                     raise ValueError(error_message)
                     
-        error_message = f'Item {item_name} not found'
+        error_message = f'Item {item_arg} not found'
         print(error_message)
         raise ValueError(error_message)
 
 
     def get_item_type(self, item: Item) -> str:
-        # If item_type is Weapon
         if item.item_type == ItemType.Weapon:
             if (item.item_sub_type == ItemSubType.Ranged) or int(item.stats.range > 0):
                 return 'Ranged Weapon'
@@ -99,7 +101,7 @@ class Items(commands.Cog):
 
 
     @discord.slash_command(name='item', description='Returns information about an item')
-    async def item_lookup(self, ctx, item: str):
+    async def item_lookup(self, ctx, item):
         await ctx.response.defer()
 
         icon = discord.File(self.icon_path, filename=self.icon)
